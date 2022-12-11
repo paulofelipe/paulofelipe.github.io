@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Paulo Oliveira"
+  title: "Paulo Oliveiraaa"
   navbar:
     left:
       - href: index.qmd
@@ -12,7 +12,6 @@ website:
         text: Blog
       - href: about.qmd
         text: Sobre
-
 format:
   html:
     theme:
