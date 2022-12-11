@@ -1,0 +1,56 @@
+/* css styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap');
+
+/*-- scss:defaults --*/
+
+// Colors
+$main-color: #323233;
+$light-blue: rgb(91, 132, 209);
+
+/*-- scss:rules --*/
+
+.navbar-dark {
+	background-color: $main-color;
+}
+
+// Botões do link
+div.quarto-about-trestles .about-entity .about-link {
+	font-size: .8em;
+	padding: .25em .5em;
+	border-radius: 4px;
+	background-color: $main-color;
+	color: white;
+}
+
+// Link da navbark
+.navbar-dark .navbar-nav .nav-link {
+	color: #f8ea24;
+}
+
+.navbar-dark .navbar-nav .show > .nav-link, .navbar-dark .navbar-nav .active > .nav-link, .navbar-dark .navbar-nav .nav-link.active {
+	color: #f8ea24;
+	font-weight: bold;
+}
+
+div.quarto-about-trestles .about-entity .about-link:hover {
+	color: #f8ea24;
+}
+
+a {
+	color: #a48c0a;
+	text-decoration: underline;
+	-webkit-text-decoration: underline;
+	-moz-text-decoration: underline;
+	-ms-text-decoration: underline;
+	-o-text-decoration: underline;
+}
+
+a:hover {
+	color: #ccb117;
+	text-decoration: underline;
+	-webkit-text-decoration: underline;
+	-moz-text-decoration: underline;
+	-ms-text-decoration: underline;
+	-o-text-decoration: underline;
+}
