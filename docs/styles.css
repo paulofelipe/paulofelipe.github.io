@@ -1,1 +1,3 @@
-/* css styles */
+.navbar-dark {
+	background-color: $main-color;
+}

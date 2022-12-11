@@ -2,4 +2,4 @@
 title: "About"
 ---
 
-About this site
+# `r fontawesome::fa("graduation-cap")` Educação

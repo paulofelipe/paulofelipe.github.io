@@ -9,8 +9,50 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "mysite",
+    "title": "Paulo Oliveira",
     "section": "",
-    "text": "To learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "text": "Eu sou o Paulo. Minha formação é em economia. Minha área de interesse é análise de dados em geral, como simulação com base em modelos econômicos, econometria e aprendizado de máquina."
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Teste …\n\n\n\n\n\n\n25 de set. de 2022\n\n\n2 minutos\n\n\n\n\n\n\nNenhum item correspondente"
+  },
+  {
+    "objectID": "posts/teste.html",
+    "href": "posts/teste.html",
+    "title": "teste",
+    "section": "",
+    "text": "3 + 43\n\n[1] 46"
+  },
+  {
+    "objectID": "posts/hello-world.html",
+    "href": "posts/hello-world.html",
+    "title": "Hello World",
+    "section": "",
+    "text": "3 + 43\n\n[1] 46\n\n\n\nmtcars |>\n  ggplot2::ggplot() +\n  ggplot2::aes(y = mpg, x = hp) +\n  ggplot2::geom_point()"
+  },
+  {
+    "objectID": "posts/teste/index.html",
+    "href": "posts/teste/index.html",
+    "title": "Hello World",
+    "section": "",
+    "text": "2 + 2\n\n[1] 4\n\n\n\nmtcars |>\n  ggplot2::ggplot() +\n  ggplot2::aes(x = hp, y = mpg) +\n  ggplot2::geom_point()\n\n\n\nggplot2::ggsave(filename = \"teste.png\")\n\nSaving 7 x 5 in image\n\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Integer bibendum, massa vitae fermentum ultrices, odio magna pretium nunc, sit amet euismod est justo viverra mauris. Proin vestibulum euismod nulla, sed ornare magna porta at. Etiam in elit felis. Morbi condimentum, odio ut fringilla accumsan, elit arcu faucibus lorem, ac mattis odio mi non sem. Morbi laoreet neque eu mi lobortis, nec rhoncus elit feugiat. Donec blandit lacinia arcu sit amet rhoncus. Vivamus pharetra egestas dolor ac scelerisque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nam vestibulum augue ut hendrerit dapibus. Morbi at sodales eros. Phasellus gravida ut turpis at faucibus. Sed efficitur vulputate mattis. Aenean laoreet lorem in libero pulvinar, eget bibendum lacus dictum. Aenean eget sem in metus malesuada euismod.\nEtiam et ex mi. In finibus tristique laoreet. Suspendisse commodo sem vitae placerat consequat. Vivamus maximus auctor eros ac finibus. Duis maximus a nisi ut rhoncus. Maecenas rutrum, erat ac consectetur rhoncus, nisl sapien ullamcorper tortor, nec egestas lectus leo non magna. Aliquam facilisis ultrices lacus sed euismod. Maecenas ultricies vestibulum porttitor.\nEtiam tristique mollis quam, sit amet venenatis nibh interdum ac. Donec non urna lectus. Aliquam erat volutpat. Suspendisse pretium vel eros ac ullamcorper. Donec ut pulvinar enim, quis bibendum massa. Curabitur ornare elementum sagittis. Ut sagittis sem quis magna facilisis, eu fringilla ante sollicitudin. Fusce purus dolor, rutrum in ultricies varius, ultrices ut quam. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae;\nEtiam euismod vehicula sapien, vel ullamcorper nisl congue vel. Nam rutrum lectus ac consequat tincidunt. Etiam consectetur tortor massa, id hendrerit ex lacinia sit amet. Praesent turpis diam, viverra eu maximus non, mollis sed mauris. In maximus in ante quis consequat. In vel felis magna. Suspendisse tristique mi sed suscipit maximus.\nPellentesque vehicula eget ante ac consectetur. Quisque sed blandit nibh. Nullam consectetur vulputate pulvinar. Aliquam lacinia eros sit amet mauris lobortis, ac hendrerit est ultricies. Ut dapibus libero eros, et aliquet leo laoreet vitae. Aenean congue euismod tincidunt. Sed faucibus, mauris ut maximus tempor, lectus nisi sollicitudin tortor, et tristique ligula lectus ultrices ex. Vestibulum posuere lorem nec felis tincidunt consectetur. Nulla libero nunc, scelerisque vitae facilisis id, aliquet vel tellus. Aliquam cursus ipsum et viverra congue. Curabitur at commodo quam, a molestie risus. Nulla pharetra dolor nisl, non tempus quam porttitor eu."
+  },
+  {
+    "objectID": "index.html#projetos",
+    "href": "index.html#projetos",
+    "title": "Paulo Oliveira",
+    "section": "Projetos",
+    "text": "Projetos\n\nPacote em R para simulações utilizando o modelo de comércio desenvolvido em Caliendo e Parro (2015). cp2015\nHtmlwidget para R para utilização da biblioteca D3plus (v1). D3plusR\nLivro: Ciência de Dados com R - Introdução com Saulo Guerra, Robert MacDonnell e Sillas Gonzaga."
+  },
+  {
+    "objectID": "index.html#projetoss",
+    "href": "index.html#projetoss",
+    "title": "Paulo Oliveira",
+    "section": "Projetoss",
+    "text": "Projetoss\n\nPacote em R para simulações utilizando o modelo de comércio desenvolvido em Caliendo e Parro (2015). cp2015\nHtmlwidget para R para utilização da biblioteca D3plus (v1). D3plusR\nLivro: Ciência de Dados com R - Introdução com Saulo Guerra, Robert MacDonnell e Sillas Gonzaga."
   }
 ]

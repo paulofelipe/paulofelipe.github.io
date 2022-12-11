@@ -1,0 +1,10 @@
+---
+title: Blog
+listing:
+  contents: posts/**/*.qmd
+  sort: "date desc"
+  type: default
+  fields: [image, date, title, subtitle, categories, author, reading-time]
+  categories: true
+lang: pt
+---

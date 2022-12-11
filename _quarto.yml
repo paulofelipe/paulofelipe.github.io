@@ -3,17 +3,21 @@ project:
   output-dir: docs
 
 website:
-  title: "mysite"
+  title: "Paulo Oliveira"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
+      - href: blog.qmd
+        text: Blog
+      - href: about.qmd
+        text: Sobre
 
 format:
   html:
-    theme: cosmo
-    css: styles.css
+    theme:
+      - mytheme.scss
+    mainfont: Nunito
     toc: true
 
 
