@@ -1,9 +1,12 @@
 project:
   type: website
   output-dir: docs
+  preview:
+    port: 4200
+    browser: true
 
 website:
-  title: "Paulo Oliveiraaa"
+  # title: "Paulo Oliveira"
   navbar:
     left:
       - href: index.qmd

@@ -1,0 +1,232 @@
+---
+title: Predição de resultados de futebol - Parte 1
+date: "2022-12-17"
+subtitle: "Teste ..."
+lang: pt
+image: richarlisson.jpg
+---
+
+## Pacotes
+
+```{r}
+#| message: false
+#| warning: false
+library(EloRating)
+library(bonsai)
+library(RcppRoll)
+library(tidymodels)
+library(tidyverse)
+
+theme_set(theme_bw())
+```
+
+## Dados
+
+```{r}
+data <- read_csv(
+  file = "https://github.com/martj42/international_results/raw/master/results.csv",
+  show_col_types = FALSE
+)
+
+# Remove partidas sem resultados
+data <- data %>%
+  filter(!is.na(home_score))
+```
+
+## Elo Rating
+
+```{r}
+# Determina o vencendor e o perdedor
+# Em caso de empate, não importa a ordem, mas é preciso indicar que é um empate
+data <- data %>%
+  mutate(
+    winner = case_when(
+      home_score >= away_score ~ home_team,
+      TRUE ~ away_team
+    ),
+    loser = case_when(
+      home_score < away_score ~ home_team,
+      TRUE ~ away_team
+    ),
+    draw = home_score == away_score,
+    match_id = 1:n()
+  )
+
+# Calcula os ratings
+elo_fit <- elo.seq(
+  winner = data$winner,
+  loser = data$loser,
+  Date = data$date,
+  draw = data$draw,
+  k = 20
+)
+
+# Adiciona os ratings ao data.frame
+data <- data %>%
+  mutate(
+    home_team_elo = extract_elo(
+      eloobject = elo_fit,
+      extractdate = pmax(min(elo_fit$truedates), date - 1),
+      IDs = home_team
+    ),
+    away_team_elo = extract_elo(
+      eloobject = elo_fit,
+      extractdate = pmax(min(elo_fit$truedates), date - 1),
+      IDs = away_team
+    )
+  )
+```
+
+## Treino, validação e teste
+
+```{r}
+data <- data |>
+  mutate(friendly = tournament == "Friendly") |>
+  filter(date >= as.Date("1930-01-01"))
+
+# Split - Treino e Teste
+train_test <- initial_time_split(data, prop = 0.8)
+train_full <- training(train_test)
+test <- testing(train_test)
+
+# Split - Treino e validação
+train_valid <- initial_time_split(train_full, prop = 0.8)
+train <- training(train_valid)
+valid <- testing(train_valid)
+```
+
+## Validação
+
+```{r}
+fit1 <- glm(home_score ~ home_team_elo + away_team_elo + neutral, data = train, family = "poisson")
+summary(fit1)
+
+pred1 <- predict(fit1, valid, type = "response")
+
+fit2 <- glm(away_score ~ home_team_elo + away_team_elo + neutral, data = train, family = "poisson")
+summary(fit2)
+
+pred2 <- predict(fit2, valid, type = "response")
+```
+
+
+```{r}
+preds <- map_df(seq_len(nrow(valid)), ~{
+  lambda1 <- pred1[.x]
+  lambda2 <- pred2[.x]
+
+  prob1 <- dpois(0:10, lambda1)
+  prob2 <- dpois(0:10, lambda2)
+  probs <- outer(prob1, prob2)
+  probs <- probs / sum(probs)
+
+  prob_team1 <- sum(lower.tri(probs) * probs)
+  prob_team2 <- sum(upper.tri(probs) * probs)
+  prob_draw <- sum(diag(probs))
+
+  data.frame(
+    .pred_team1 = prob_team1,
+    .pred_draw = prob_draw,
+    .pred_team2 = prob_team2
+  )
+})
+```
+
+```{r}
+valid %>%
+  bind_cols(preds) %>%
+  mutate(
+    target = case_when(
+      home_score > away_score ~ "team1",
+      home_score == away_score ~ "draw",
+      home_score < away_score ~ "team2"
+    ),
+    target = factor(target, c("team1", "draw", "team2"))
+  ) %>%
+  mn_log_loss(
+    truth = target,
+    estimate = contains("pred")
+  )
+```
+
+## Teste
+
+```{r}
+fit1 <- glm(home_score ~ home_team_elo + away_team_elo + neutral, data = train_full, family = "poisson")
+summary(fit1)
+
+pred1 <- predict(fit1, test, type = "response")
+
+fit2 <- glm(away_score ~ home_team_elo + away_team_elo + neutral, data = train_full, family = "poisson")
+summary(fit2)
+
+pred2 <- predict(fit2, test, type = "response")
+```
+
+```{r}
+preds <- map_df(seq_len(nrow(test)), ~{
+  lambda1 <- pred1[.x]
+  lambda2 <- pred2[.x]
+
+  prob1 <- dpois(0:10, lambda1)
+  prob2 <- dpois(0:10, lambda2)
+  probs <- outer(prob1, prob2)
+  probs <- probs / sum(probs)
+
+  prob_team1 <- sum(lower.tri(probs) * probs)
+  prob_team2 <- sum(upper.tri(probs) * probs)
+  prob_draw <- sum(diag(probs))
+
+  data.frame(
+    .pred_team1 = prob_team1,
+    .pred_draw = prob_draw,
+    .pred_team2 = prob_team2
+  )
+})
+```
+
+```{r}
+test %>%
+  bind_cols(preds) %>%
+  mutate(
+    target = case_when(
+      home_score > away_score ~ "team1",
+      home_score == away_score ~ "draw",
+      home_score < away_score ~ "team2"
+    ),
+    target = factor(target, c("team1", "draw", "team2"))
+  ) %>%
+  mn_log_loss(
+    truth = target,
+    estimate = contains("pred")
+  )
+```
+
+```{r}
+test %>%
+  bind_cols(preds) %>%
+  mutate(
+    target = case_when(
+      home_score > away_score ~ "team1",
+      home_score == away_score ~ "draw",
+      home_score < away_score ~ "team2"
+    ),
+    target = factor(target, c("team1", "draw", "team2")),
+    pred_class = case_when(
+      .pred_team1 == pmax(.pred_team1, .pred_team2, .pred_draw) ~ "team1",
+      .pred_draw == pmax(.pred_team1, .pred_team2, .pred_draw) ~ "draw",
+      .pred_team2 == pmax(.pred_team1, .pred_team2, .pred_draw) ~ "team2"
+    ),
+    pred_class = factor(pred_class, c("team1", "draw", "team2"))
+  ) %>%
+  filter(date >= as.Date("2022-01-01"), tournament == "FIFA World Cup") %>%
+  # select(date, home_team, away_team, target, pred_class)
+  accuracy(
+    truth = target,
+    estimate = pred_class
+  )
+  # mn_log_loss(
+  #   truth = target,
+  #   estimate = contains("pred")
+  # )
+```
