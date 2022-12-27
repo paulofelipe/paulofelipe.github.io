@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Predição de resultados de futebol - Parte 1</title>
+<title>Predições de Resultados de Futebol</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -122,6 +122,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 }</script>
 
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 </head>
 
@@ -160,12 +161,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <h2 id="toc-title">Nesta página</h2>
    
   <ul>
-  <li><a href="#pacotes" id="toc-pacotes" class="nav-link active" data-scroll-target="#pacotes">Pacotes</a></li>
+  <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução">Introdução</a></li>
+  <li><a href="#pacotes" id="toc-pacotes" class="nav-link" data-scroll-target="#pacotes">Pacotes</a></li>
   <li><a href="#dados" id="toc-dados" class="nav-link" data-scroll-target="#dados">Dados</a></li>
   <li><a href="#elo-rating" id="toc-elo-rating" class="nav-link" data-scroll-target="#elo-rating">Elo Rating</a></li>
   <li><a href="#treino-validação-e-teste" id="toc-treino-validação-e-teste" class="nav-link" data-scroll-target="#treino-validação-e-teste">Treino, validação e teste</a></li>
-  <li><a href="#validação" id="toc-validação" class="nav-link" data-scroll-target="#validação">Validação</a></li>
-  <li><a href="#teste" id="toc-teste" class="nav-link" data-scroll-target="#teste">Teste</a></li>
+  <li><a href="#resultados" id="toc-resultados" class="nav-link" data-scroll-target="#resultados">Resultados</a></li>
   </ul>
 </nav>
     </div>
@@ -174,9 +175,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Predição de resultados de futebol - Parte 1</h1>
-<p class="subtitle lead">Teste …</p>
-</div>
+<h1 class="title">Predições de Resultados de Futebol</h1>
+<p class="subtitle lead">Vamos documentar uma abordagem de predição de partidas de futebol utilizando modelos de regressões de Poisson.</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">R</div>
+    <div class="quarto-category">Modelos preditivos</div>
+  </div>
+  </div>
 
 
 
@@ -186,7 +191,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Data de Publicação</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">17 de dezembro de 2022</p>
+      <p class="date">20 de dezembro de 2022</p>
     </div>
   </div>
     
@@ -195,223 +200,158 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 </header>
 
+<section id="introdução" class="level2">
+<h2 class="anchored" data-anchor-id="introdução">Introdução</h2>
+<p>Durante a Copa do Mundo de futebol de 2022, o interesse por predições de resultados de futebol aumentou consideravelmente. Neste sentido, este post irá demonstrar uma abordagem simples que pode gerar resultados razoáveis. O modelo utilizado neste post é baseado no trabalho <a href="https://www.dropbox.com/s/184usjs7jye38lk/red-method-v1.pdf?dl=0">The Methodology of Red, a Football Forecasting Model from theUniversity of Reading</a> de J. James Reade.</p>
+<p>Basicamente, o autor utiliza um modelo de Poisson para prever as probabilidades de gols marcados por cada time. A partir dessas probabilidades, é possível estimar também a chance de vitória, empate ou derrota de cada time. Como variáveis, iremos utilizar o <a href="https://en.wikipedia.org/wiki/Elo_rating_system">Elo Rating</a> de cada time e uma variável que indica se o jogo ocorreu em campo neutro ou não. O modelo a ser estimado para cada time é: <span class="math display">\[ Y_{ijt}^n = \exp\left(\alpha^n + \beta_1^n R_{it} + \beta_2^n R_{jt} + \beta_3^n N_{ijt} \right) \varepsilon_{ijt}^n,~~~~ n \in \{time1, time2\}, \]</span> em que <span class="math inline">\(Y_{ijt}^n\)</span> representa o número de gols marcados pelo time <span class="math inline">\(n\)</span> (time 1 ou time2) em uma partida entre o time <span class="math inline">\(i\)</span> (time 1) e o time <span class="math inline">\(j\)</span> (time 2) na data <span class="math inline">\(t\)</span>. As variáveis <span class="math inline">\(R_{it}\)</span> e <span class="math inline">\(R_{jt}\)</span> representam, respectivamente, os ratings dos times <span class="math inline">\(i\)</span> e <span class="math inline">\(j\)</span> antes da partida de data <span class="math inline">\(t\)</span>. Por último, a variável <span class="math inline">\(N_{ijt}\)</span> é um variável <em>dummy</em> que indica se a partida foi realizada em um campo neutro. Reforçando, iremos estimar dois modelos: um para o time 1 e outro para o time 2.</p>
+</section>
 <section id="pacotes" class="level2">
 <h2 class="anchored" data-anchor-id="pacotes">Pacotes</h2>
-<div class="cell">
+<p>Os pacotes utilizados estão listados abaixo.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-1_ab6c5a4b2a53143ac0eee59dca215a5f">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(EloRating)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(bonsai)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RcppRoll)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RcppRoll)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Tema para os gráficos</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="dados" class="level2">
 <h2 class="anchored" data-anchor-id="dados">Dados</h2>
-<div class="cell">
+<p>Serão utilizados dados de partidas entre seleções que estão disponíveis neste repositório: <a href="https://github.com/martj42/international_results">martj42/international_results</a>. A primeira partida disponível na base data de 30/11/1872.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-2_82b7e8098c45c23f15d529fe11f4000c">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="st">"https://github.com/martj42/international_results/raw/master/results.csv"</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove partidas sem resultados</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(home_score))</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove partidas sem resultados e ajusta os nomes das variáveis de home e away</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># para team1 e team2</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(home_score)) <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">team1 =</span> home_team,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">team2 =</span> away_team,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">team1_score =</span> home_score,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">team2_score =</span> away_score</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(data)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 9
+  date       team1    team2    team1_score team2…¹ tourn…² city  country neutral
+  &lt;date&gt;     &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;   &lt;lgl&gt;  
+1 1872-11-30 Scotland England            0       0 Friend… Glas… Scotla… FALSE  
+2 1873-03-08 England  Scotland           4       2 Friend… Lond… England FALSE  
+3 1874-03-07 Scotland England            2       1 Friend… Glas… Scotla… FALSE  
+4 1875-03-06 England  Scotland           2       2 Friend… Lond… England FALSE  
+5 1876-03-04 Scotland England            3       0 Friend… Glas… Scotla… FALSE  
+6 1876-03-25 Scotland Wales              4       0 Friend… Glas… Scotla… FALSE  
+# … with abbreviated variable names ¹​team2_score, ²​tournament</code></pre>
+</div>
 </div>
 </section>
 <section id="elo-rating" class="level2">
 <h2 class="anchored" data-anchor-id="elo-rating">Elo Rating</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Determina o vencendor e o perdedor</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Em caso de empate, não importa a ordem, mas é preciso indicar que é um empate</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">winner =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&gt;=</span> away_score <span class="sc">~</span> home_team,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> away_team</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">loser =</span> <span class="fu">case_when</span>(</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&lt;</span> away_score <span class="sc">~</span> home_team,</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> away_team</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">draw =</span> home_score <span class="sc">==</span> away_score,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">match_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcula os ratings</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>elo_fit <span class="ot">&lt;-</span> <span class="fu">elo.seq</span>(</span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">winner =</span> data<span class="sc">$</span>winner,</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">loser =</span> data<span class="sc">$</span>loser,</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Date =</span> data<span class="sc">$</span>date,</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">draw =</span> data<span class="sc">$</span>draw,</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">20</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Adiciona os ratings ao data.frame</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">home_team_elo =</span> <span class="fu">extract_elo</span>(</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">eloobject =</span> elo_fit,</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">extractdate =</span> <span class="fu">pmax</span>(<span class="fu">min</span>(elo_fit<span class="sc">$</span>truedates), date <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">IDs =</span> home_team</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">away_team_elo =</span> <span class="fu">extract_elo</span>(</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">eloobject =</span> elo_fit,</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>      <span class="at">extractdate =</span> <span class="fu">pmax</span>(<span class="fu">min</span>(elo_fit<span class="sc">$</span>truedates), date <span class="sc">-</span> <span class="dv">1</span>),</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">IDs =</span> away_team</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>O código abaixo irá calcular os scores (rating) do times utilizando o pacote <code>EloRating</code>. A fórmula de atualização dos scores depende um fator atualização <span class="math inline">\(k\)</span>. Quanto maior esse valor, maior será o tamanho do ajuste dos scores dos times envolvidos em cada partida. Aqui, será utilizado o valor 20 igual ao adotado por J. James Reade.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-3_2e0393f7f9e50db1741c553e5b6df31b">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Determina o vencendor e o perdedor</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Em caso de empate, não importa a ordem, mas é preciso indicar que é um empate</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">winner =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      team1_score <span class="sc">&gt;=</span> team2_score <span class="sc">~</span> team1,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> team2</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">loser =</span> <span class="fu">case_when</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>      team1_score <span class="sc">&lt;</span> team2_score <span class="sc">~</span> team1,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>      <span class="cn">TRUE</span> <span class="sc">~</span> team2</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">draw =</span> team1_score <span class="sc">==</span> team2_score,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">match_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">n</span>()</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcula os ratings</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>elo_fit <span class="ot">&lt;-</span> <span class="fu">elo.seq</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">winner =</span> data<span class="sc">$</span>winner,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">loser =</span> data<span class="sc">$</span>loser,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Date =</span> data<span class="sc">$</span>date,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">draw =</span> data<span class="sc">$</span>draw,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">20</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Adiciona os ratings ao data.frame.</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Note que utilizamos o rate do dia anterior à partida para que seja refletido</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co"># o score de cada time antes da partida.</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">team1_elo =</span> <span class="fu">extract_elo</span>(</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">eloobject =</span> elo_fit,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">extractdate =</span> <span class="fu">pmax</span>(<span class="fu">min</span>(elo_fit<span class="sc">$</span>truedates), date <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">IDs =</span> team1</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">team2_elo =</span> <span class="fu">extract_elo</span>(</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">eloobject =</span> elo_fit,</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">extractdate =</span> <span class="fu">pmax</span>(<span class="fu">min</span>(elo_fit<span class="sc">$</span>truedates), date <span class="sc">-</span> <span class="dv">1</span>),</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>      <span class="at">IDs =</span> team2</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="treino-validação-e-teste" class="level2">
 <h2 class="anchored" data-anchor-id="treino-validação-e-teste">Treino, validação e teste</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">friendly =</span> tournament <span class="sc">==</span> <span class="st">"Friendly"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1930-01-01"</span>))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Split - Treino e Teste</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>train_test <span class="ot">&lt;-</span> <span class="fu">initial_time_split</span>(data, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>train_full <span class="ot">&lt;-</span> <span class="fu">training</span>(train_test)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">testing</span>(train_test)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Split - Treino e validação</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>train_valid <span class="ot">&lt;-</span> <span class="fu">initial_time_split</span>(train_full, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">training</span>(train_valid)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>valid <span class="ot">&lt;-</span> <span class="fu">testing</span>(train_valid)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Como não vamos realizar nenhuma seleção de hiperparâmetros, já que o modelo é bastante simples, iremos dividir os dados apenas em dois conjuntos: treino e teste.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-4_6b2a1d921d36ee90da57d783349fcada">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">friendly =</span> tournament <span class="sc">==</span> <span class="st">"Friendly"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"1930-01-01"</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Split - Treino e Teste</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>train_test <span class="ot">&lt;-</span> <span class="fu">initial_time_split</span>(data, <span class="at">prop =</span> <span class="fl">0.8</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">training</span>(train_test)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> <span class="fu">testing</span>(train_test)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="validação" class="level2">
-<h2 class="anchored" data-anchor-id="validação">Validação</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(home_score <span class="sc">~</span> home_team_elo <span class="sc">+</span> away_team_elo <span class="sc">+</span> neutral, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="resultados" class="level2">
+<h2 class="anchored" data-anchor-id="resultados">Resultados</h2>
+<p>Neste primeiro bloco de código, os modelos para os times 1 e 2 são estimados usando a função <code>glm()</code> com a opção <code>family = poisson</code>.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-5_b7838be74b4dda22f9ce754cd35244ab">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> team1_score <span class="sc">~</span> team1_elo <span class="sc">+</span> team2_elo <span class="sc">+</span> neutral,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> train,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"poisson"</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>pred1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit1, test, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> team2_score <span class="sc">~</span> team1_elo <span class="sc">+</span> team2_elo <span class="sc">+</span> neutral,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> train,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"poisson"</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>pred2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit2, test, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
-glm(formula = home_score ~ home_team_elo + away_team_elo + neutral, 
+glm(formula = team1_score ~ team1_elo + team2_elo + neutral, 
     family = "poisson", data = train)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--3.1873  -1.1104  -0.2373   0.5344  10.4309  
-
-Coefficients:
-                Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)    1.509e+00  5.096e-02  29.601  &lt; 2e-16 ***
-home_team_elo  2.031e-03  3.971e-05  51.136  &lt; 2e-16 ***
-away_team_elo -2.967e-03  3.911e-05 -75.865  &lt; 2e-16 ***
-neutralTRUE   -8.510e-02  1.072e-02  -7.942 1.98e-15 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-(Dispersion parameter for poisson family taken to be 1)
-
-    Null deviance: 46656  on 27579  degrees of freedom
-Residual deviance: 39895  on 27576  degrees of freedom
-AIC: 94768
-
-Number of Fisher Scoring iterations: 5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pred1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit1, valid, <span class="at">type =</span> <span class="st">"response"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(away_score <span class="sc">~</span> home_team_elo <span class="sc">+</span> away_team_elo <span class="sc">+</span> neutral, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-glm(formula = away_score ~ home_team_elo + away_team_elo + neutral, 
-    family = "poisson", data = train)
-
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--2.8560  -1.2868  -0.2057   0.5046   8.2971  
-
-Coefficients:
-                Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)    7.282e-01  6.273e-02   11.61   &lt;2e-16 ***
-home_team_elo -2.925e-03  4.768e-05  -61.34   &lt;2e-16 ***
-away_team_elo  2.273e-03  4.951e-05   45.92   &lt;2e-16 ***
-neutralTRUE    2.898e-01  1.230e-02   23.57   &lt;2e-16 ***
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-(Dispersion parameter for poisson family taken to be 1)
-
-    Null deviance: 42429  on 27579  degrees of freedom
-Residual deviance: 37430  on 27576  degrees of freedom
-AIC: 79843
-
-Number of Fisher Scoring iterations: 5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pred2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit2, valid, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">map_df</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(valid)), <span class="sc">~</span>{</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  lambda1 <span class="ot">&lt;-</span> pred1[.x]</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  lambda2 <span class="ot">&lt;-</span> pred2[.x]</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  prob1 <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, lambda1)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  prob2 <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, lambda2)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  probs <span class="ot">&lt;-</span> <span class="fu">outer</span>(prob1, prob2)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  probs <span class="ot">&lt;-</span> probs <span class="sc">/</span> <span class="fu">sum</span>(probs)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  prob_team1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">lower.tri</span>(probs) <span class="sc">*</span> probs)</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  prob_team2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">upper.tri</span>(probs) <span class="sc">*</span> probs)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  prob_draw <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(probs))</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_team1 =</span> prob_team1,</span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_draw =</span> prob_draw,</span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_team2 =</span> prob_team2</span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>valid <span class="sc">%&gt;%</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">case_when</span>(</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&gt;</span> away_score <span class="sc">~</span> <span class="st">"team1"</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">==</span> away_score <span class="sc">~</span> <span class="st">"draw"</span>,</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&lt;</span> away_score <span class="sc">~</span> <span class="st">"team2"</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">factor</span>(target, <span class="fu">c</span>(<span class="st">"team1"</span>, <span class="st">"draw"</span>, <span class="st">"team2"</span>))</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mn_log_loss</span>(</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">truth =</span> target,</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> <span class="fu">contains</span>(<span class="st">"pred"</span>)</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  .metric     .estimator .estimate
-  &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
-1 mn_log_loss multiclass     0.911</code></pre>
-</div>
-</div>
-</section>
-<section id="teste" class="level2">
-<h2 class="anchored" data-anchor-id="teste">Teste</h2>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(home_score <span class="sc">~</span> home_team_elo <span class="sc">+</span> away_team_elo <span class="sc">+</span> neutral, <span class="at">data =</span> train_full, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-glm(formula = home_score ~ home_team_elo + away_team_elo + neutral, 
-    family = "poisson", data = train_full)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
 -3.3123  -1.1426  -0.2357   0.5326  10.5104  
 
 Coefficients:
-                Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)    1.448e+00  4.271e-02  33.913  &lt; 2e-16 ***
-home_team_elo  1.989e-03  3.394e-05  58.599  &lt; 2e-16 ***
-away_team_elo -2.893e-03  3.351e-05 -86.319  &lt; 2e-16 ***
-neutralTRUE   -7.496e-02  9.571e-03  -7.832 4.79e-15 ***
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  1.448e+00  4.271e-02  33.913  &lt; 2e-16 ***
+team1_elo    1.989e-03  3.394e-05  58.599  &lt; 2e-16 ***
+team2_elo   -2.893e-03  3.351e-05 -86.319  &lt; 2e-16 ***
+neutralTRUE -7.496e-02  9.571e-03  -7.832 4.79e-15 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -421,28 +361,23 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Residual deviance: 49451  on 34472  degrees of freedom
 AIC: 117216
 
-Number of Fisher Scoring iterations: 5</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit1, test, <span class="at">type =</span> <span class="st">"response"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(away_score <span class="sc">~</span> home_team_elo <span class="sc">+</span> away_team_elo <span class="sc">+</span> neutral, <span class="at">data =</span> train_full, <span class="at">family =</span> <span class="st">"poisson"</span>)</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
+Number of Fisher Scoring iterations: 5
+
+
 Call:
-glm(formula = away_score ~ home_team_elo + away_team_elo + neutral, 
-    family = "poisson", data = train_full)
+glm(formula = team2_score ~ team1_elo + team2_elo + neutral, 
+    family = "poisson", data = train)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
 -2.8221  -1.2718  -0.2035   0.4967   8.3455  
 
 Coefficients:
-                Estimate Std. Error z value Pr(&gt;|z|)    
-(Intercept)    5.932e-01  5.231e-02   11.34   &lt;2e-16 ***
-home_team_elo -2.864e-03  4.078e-05  -70.23   &lt;2e-16 ***
-away_team_elo  2.319e-03  4.193e-05   55.31   &lt;2e-16 ***
-neutralTRUE    3.028e-01  1.097e-02   27.61   &lt;2e-16 ***
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  5.932e-01  5.231e-02   11.34   &lt;2e-16 ***
+team1_elo   -2.864e-03  4.078e-05  -70.23   &lt;2e-16 ***
+team2_elo    2.319e-03  4.193e-05   55.31   &lt;2e-16 ***
+neutralTRUE  3.028e-01  1.097e-02   27.61   &lt;2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -454,85 +389,101 @@ AIC: 98597
 
 Number of Fisher Scoring iterations: 5</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pred2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit2, test, <span class="at">type =</span> <span class="st">"response"</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">map_df</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(test)), <span class="sc">~</span>{</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  lambda1 <span class="ot">&lt;-</span> pred1[.x]</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  lambda2 <span class="ot">&lt;-</span> pred2[.x]</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  prob1 <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, lambda1)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  prob2 <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, lambda2)</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  probs <span class="ot">&lt;-</span> <span class="fu">outer</span>(prob1, prob2)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  probs <span class="ot">&lt;-</span> probs <span class="sc">/</span> <span class="fu">sum</span>(probs)</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  prob_team1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">lower.tri</span>(probs) <span class="sc">*</span> probs)</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  prob_team2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">upper.tri</span>(probs) <span class="sc">*</span> probs)</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  prob_draw <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(probs))</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_team1 =</span> prob_team1,</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_draw =</span> prob_draw,</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_team2 =</span> prob_team2</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Neste segundo bloco, são computadas as probabilidades de vitória do time 1, empate e vitória do time 2. Para isso, são utilizadas as predições anteriores como o parâmetro (<span class="math inline">\(\lambda\)</span>) da distribuição de Poisson e são calculadas as probabilidades de cada time marcar 0 a 10 gols. Multiplicando as probabilidades são obtidas as probabilidades de cada placar possível. Por último, a probabilidade do time 1 ganhar é calculada como a soma das probabilidades dos placares nos quais o time 1 marca mais gols que o time2. As probabilidades de empate e vitória do time 2 são calculadas de forma similar.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-6_ae8f579628c36d49c8ad5c5407329619">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>preds <span class="ot">&lt;-</span> <span class="fu">map_df</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(test)), <span class="sc">~</span>{</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  lambda1 <span class="ot">&lt;-</span> pred1[.x]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  lambda2 <span class="ot">&lt;-</span> pred2[.x]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  prob1 <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, lambda1)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  prob2 <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">10</span>, lambda2)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  probs <span class="ot">&lt;-</span> <span class="fu">outer</span>(prob1, prob2)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  probs <span class="ot">&lt;-</span> probs <span class="sc">/</span> <span class="fu">sum</span>(probs)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  prob_team1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">lower.tri</span>(probs) <span class="sc">*</span> probs)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  prob_team2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">upper.tri</span>(probs) <span class="sc">*</span> probs)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  prob_draw <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">diag</span>(probs))</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_team1 =</span> prob_team1,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_draw =</span> prob_draw,</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_team2 =</span> prob_team2</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span></span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">%&gt;%</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">case_when</span>(</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&gt;</span> away_score <span class="sc">~</span> <span class="st">"team1"</span>,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">==</span> away_score <span class="sc">~</span> <span class="st">"draw"</span>,</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&lt;</span> away_score <span class="sc">~</span> <span class="st">"team2"</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">factor</span>(target, <span class="fu">c</span>(<span class="st">"team1"</span>, <span class="st">"draw"</span>, <span class="st">"team2"</span>))</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mn_log_loss</span>(</span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">truth =</span> target,</span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> <span class="fu">contains</span>(<span class="st">"pred"</span>)</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>O código abaixo computa algumas métricas (log-loss e acurácia) para a base de testes.</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-7_41081fe24a717d9740bbb6bcd6a58184">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Junta as predições aos dados de teste, cria a variável de target e a predição</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># por classe.</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> test <span class="sc">|&gt;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">|&gt;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">case_when</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>      team1_score <span class="sc">&gt;</span> team2_score <span class="sc">~</span> <span class="st">"team1"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      team1_score <span class="sc">==</span> team2_score <span class="sc">~</span> <span class="st">"draw"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      team1_score <span class="sc">&lt;</span> team2_score <span class="sc">~</span> <span class="st">"team2"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">factor</span>(target, <span class="fu">c</span>(<span class="st">"team1"</span>, <span class="st">"draw"</span>, <span class="st">"team2"</span>)),</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># predição por classe</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_class =</span> <span class="fu">case_when</span>(</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>      .pred_team1 <span class="sc">==</span> <span class="fu">pmax</span>(.pred_team1, .pred_team2, .pred_draw) <span class="sc">~</span> <span class="st">"team1"</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      .pred_draw <span class="sc">==</span> <span class="fu">pmax</span>(.pred_team1, .pred_team2, .pred_draw) <span class="sc">~</span> <span class="st">"draw"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      .pred_team2 <span class="sc">==</span> <span class="fu">pmax</span>(.pred_team1, .pred_team2, .pred_draw) <span class="sc">~</span> <span class="st">"team2"</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_class =</span> <span class="fu">factor</span>(pred_class, <span class="fu">c</span>(<span class="st">"team1"</span>, <span class="st">"draw"</span>, <span class="st">"team2"</span>))</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>score_acc <span class="ot">&lt;-</span> <span class="fu">accuracy</span>(</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> test,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> target,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> pred_class</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>score_ll <span class="ot">&lt;-</span> <span class="fu">mn_log_loss</span>(</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> test,</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> target,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">contains</span>(<span class="st">".pred"</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(score_acc, score_ll)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
+<pre><code># A tibble: 2 × 3
   .metric     .estimator .estimate
   &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
-1 mn_log_loss multiclass     0.902</code></pre>
+1 accuracy    multiclass     0.584
+2 mn_log_loss multiclass     0.902</code></pre>
 </div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>test <span class="sc">%&gt;%</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(preds) <span class="sc">%&gt;%</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">case_when</span>(</span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&gt;</span> away_score <span class="sc">~</span> <span class="st">"team1"</span>,</span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">==</span> away_score <span class="sc">~</span> <span class="st">"draw"</span>,</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>      home_score <span class="sc">&lt;</span> away_score <span class="sc">~</span> <span class="st">"team2"</span></span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">target =</span> <span class="fu">factor</span>(target, <span class="fu">c</span>(<span class="st">"team1"</span>, <span class="st">"draw"</span>, <span class="st">"team2"</span>)),</span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_class =</span> <span class="fu">case_when</span>(</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>      .pred_team1 <span class="sc">==</span> <span class="fu">pmax</span>(.pred_team1, .pred_team2, .pred_draw) <span class="sc">~</span> <span class="st">"team1"</span>,</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>      .pred_draw <span class="sc">==</span> <span class="fu">pmax</span>(.pred_team1, .pred_team2, .pred_draw) <span class="sc">~</span> <span class="st">"draw"</span>,</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>      .pred_team2 <span class="sc">==</span> <span class="fu">pmax</span>(.pred_team1, .pred_team2, .pred_draw) <span class="sc">~</span> <span class="st">"team2"</span></span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_class =</span> <span class="fu">factor</span>(pred_class, <span class="fu">c</span>(<span class="st">"team1"</span>, <span class="st">"draw"</span>, <span class="st">"team2"</span>))</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2022-01-01"</span>), tournament <span class="sc">==</span> <span class="st">"FIFA World Cup"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># select(date, home_team, away_team, target, pred_class)</span></span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">accuracy</span>(</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">truth =</span> target,</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> pred_class</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>E qual é o desempenho do modelo para as partidas da Copa do Mundo de 2022?</p>
+<div class="cell" data-hash="index_cache/html/unnamed-chunk-8_b6d55ba49b92878d0dcb4c0c343834f1">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>score_acc_wc2022 <span class="ot">&lt;-</span> <span class="fu">accuracy</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> test <span class="sc">|&gt;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2022-01-01"</span>), tournament <span class="sc">==</span> <span class="st">"FIFA World Cup"</span>),</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> target,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> pred_class</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>score_ll_wc2022 <span class="ot">&lt;-</span> <span class="fu">mn_log_loss</span>(</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> test <span class="sc">|&gt;</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(date <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">"2022-01-01"</span>), tournament <span class="sc">==</span> <span class="st">"FIFA World Cup"</span>),</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">truth =</span> target,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">contains</span>(<span class="st">".pred"</span>)</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(score_acc_wc2022, score_ll_wc2022)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 3
-  .metric  .estimator .estimate
-  &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
-1 accuracy multiclass     0.531</code></pre>
+<pre><code># A tibble: 2 × 3
+  .metric     .estimator .estimate
+  &lt;chr&gt;       &lt;chr&gt;          &lt;dbl&gt;
+1 accuracy    multiclass     0.531
+2 mn_log_loss multiclass     1.03 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># mn_log_loss(</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   truth = target,</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">#   estimate = contains("pred")</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># )</span></span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Verifica-se uma acurácia de 53,1% e log-loss de 1.03. Estes resultados indicam uma acurácia menor do que aquela obtida para o conjunto total de teste. Por fim, para dar uma sensibilidade da qualidade dos resultados obtidos por esse modelo, deixo aqui uma comparação realizada pelo <a href="https://www.octosport.io/">Octosport</a>:</p>
+<blockquote class="blockquote">
+<p>The FIFA world cup has just ended. It is time to share our model performance over the 64 games. We reached an accuracy of 56.2% and a log-loss of -0.982 on the final-time winner prediction (90 minutes).For comparison, famous 538 did 53.1% with a log-loss of -1.031 while kickoff.ai did 54.6% and -1.028.</p>
+</blockquote>
 
 
 </section>
