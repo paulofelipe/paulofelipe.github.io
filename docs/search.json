@@ -151,7 +151,7 @@
     "href": "posts/2022-12-20-bipoisson/index.html#pacotes",
     "title": "Predições de Resultados de Futebol",
     "section": "Pacotes",
-    "text": "Pacotes\nOs pacotes utilizados estão listados abaixo.\n\nlibrary(EloRating)\nlibrary(RcppRoll)\nlibrary(tidymodels)\nlibrary(tidyverse)\n\n# Tema para os gráficos\ntheme_set(theme_bw())"
+    "text": "Pacotes\nOs pacotes utilizados estão listados abaixo.\n\nlibrary(EloRating)\nlibrary(tidymodels)\nlibrary(tidyverse)\n\n# Tema para os gráficos\ntheme_set(theme_bw())"
   },
   {
     "objectID": "posts/2022-12-20-bipoisson/index.html#resultados",
