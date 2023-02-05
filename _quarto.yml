@@ -16,10 +16,10 @@ website:
       - href: about.qmd
         text: Sobre
     right: 
-      - href: https://www.github.com/paulofelipe
-        icon: github
       - icon: twitter
         href: https://twitter.com/paulofelipeao
+      - icon: github
+        href: https://www.github.com/paulofelipe
 format:
   html:
     theme:

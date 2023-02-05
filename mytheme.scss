@@ -23,7 +23,7 @@ $light-blue: rgb(91, 132, 209);
 
 @media only screen and (min-width: 700px) {
   .navbar-container {
-		margin-left: 20px;
+		margin-left: 25px;
 		grid-column: page-start/page-end;
 	}
 }
@@ -141,4 +141,8 @@ a:hover {
 	row-gap: 15px;
 	justify-content: center;
 	flex-wrap: wrap;
+}
+
+.page-columns>* {
+	grid-column: page-start/page-end;
 }
