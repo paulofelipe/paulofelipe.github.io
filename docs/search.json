@@ -2,9 +2,9 @@
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "Paulo Oliveira",
     "section": "",
-    "text": "About this site"
+    "text": "Aqui, eu listo minha formação acadêmica e a minha experiência profissional. Desde a graduação venho trabalhando com análise de dados e econometria. Inicialmente, a minha linguagem de trabalho era o Stata. Contudo, a partir de 2014 comecei a usar o R como linguangem principal. Em algumas competições do Kaggle, também trabalhei com o Python.\n\nEducação \n\n\n\n2009-2011\n\n\n\nUniversidade Federal do Ceará - UFC\n\n\nMestrado em economia.\n\n\n\n\n\n2004-2008\n\n\n\nUniversidade Federal do Ceará - UFC\n\n\nGraduação em ciências econômicas.\n\n\n\n\nTrabalho \n\n\n\n2023-Atual\n\n\n\nMinistério do Desenvolvimento, Indústria, Comércio e Serviços - MDICS\n\n\nCargo: Analista de Comércio Exterior\n\n\n\n\n\n2019-2022\n\n\n\nMinistério da Economia - ME\n\n\nCargo: Analista de Comércio Exterior\n\n\n\n\n\n2013-2018\n\n\n\nMinistério do Desenvolvimento Indústria e Comércio Exterior - MDIC\n\n\nCargo: Analista de Comércio Exterior\n\n\n\n\n\n2011-2013\n\n\n\nDefensoria Pública da União - DPU\n\n\nCargo: Economista\n\n\n\n\nCursos Ministrados \n\n\n\n2018\n\n\n\nCurso de Ciência de Dados com o R\n\n\nLocal: IBPAD.\n\n\n\n\n\n2017\n\n\n\nCurso de Ciência de Dados com o R\n\n\nLocal: IBPAD.\n\n\n\n\n\n2016\n\n\n\nCurso de Análise de Dados de Comércio Exterior com R (Módulo 2)\n\n\nLocal: MDIC."
   },
   {
     "objectID": "index.html",
@@ -18,7 +18,7 @@
     "href": "blog.html",
     "title": "Blog",
     "section": "",
-    "text": "Vamos documentar uma abordagem de predição de partidas de futebol utilizando modelos de regressões de Poisson.\n\n\n\n\nR\n\n\nModelos preditivos\n\n\n \n\n\n\n\n20 de dez. de 2022\n\n\n6 minutos\n\n\n\n\n\n\nNenhum item correspondente"
+    "text": "Predições de Resultados de Futebol\n\n\nVamos documentar uma abordagem de predição de partidas de futebol utilizando modelos de regressões de Poisson.\n\n\n\n\nR\n\n\nModelos preditivos\n\n\n \n\n\n\n\n20 de dez. de 2022\n\n\n6 minutos\n\n\n\n\n\n\nNenhum item correspondente"
   },
   {
     "objectID": "posts/teste.html",

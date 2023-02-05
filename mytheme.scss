@@ -1,19 +1,31 @@
 /* css styles */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,200;0,400;0,600;0,700;1,200;1,400;1,600;1,700&display=swap');
 
 /*-- scss:defaults --*/
 
 // Colors
-$main-color: #ffffff;
-$dark-color: rgb(41, 39, 39);
-$dark-color2: rgb(149, 83, 155);
+$main-color: #333d4a;
+$dark-color: rgb(85, 85, 85);
+$dark-color2: rgb(99, 126, 167);
+$light-color: #fff;
+$light-color2: #ccefff;
 $light-blue: rgb(91, 132, 209);
 
 /*-- scss:rules --*/
 
 .navbar-dark {
 	background-color: $main-color;
+	display: grid;
+	gap: 0;
+	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
+}
+
+@media only screen and (min-width: 700px) {
+  .navbar-container {
+		margin-left: 20px;
+		grid-column: page-start/page-end;
+	}
 }
 
 // Botões do link
@@ -22,25 +34,28 @@ div.quarto-about-trestles .about-entity .about-link {
 	padding: .25em .5em;
 	border-radius: 4px;
 	background-color: $main-color;
-	color: $dark-color;
+	color: $light-color;
 }
 
 // Link da navbark
 .navbar-dark .navbar-nav .nav-link {
-	color: $dark-color;
+	color: $light-color;
 }
 
-.navbar-dark .navbar-nav .show > .nav-link, .navbar-dark .navbar-nav .active > .nav-link, .navbar-dark .navbar-nav .nav-link.active {
-	color: $dark-color;
+.navbar-dark .navbar-nav .show>.nav-link,
+.navbar-dark .navbar-nav .active>.nav-link,
+.navbar-dark .navbar-nav .nav-link.active {
+	color: $light-color;
 	font-weight: bold;
 }
 
-.navbar-dark .navbar-nav .nav-link:hover, .navbar-dark .navbar-nav .nav-link:focus {
-	color: $dark-color2;
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
+	color: $light-color2;
 }
 
 div.quarto-about-trestles .about-entity .about-link:hover {
-	color: $dark-color2;
+	color: $light-color2;
 }
 
 a {
@@ -53,22 +68,77 @@ a {
 }
 
 a:hover {
-	color: $dark-color2;
-	text-decoration: underline;
-	-webkit-text-decoration: underline;
-	-moz-text-decoration: underline;
-	-ms-text-decoration: underline;
-	-o-text-decoration: underline;
-}
-
-.navbar-dark .navbar-brand {
 	color: $dark-color;
 }
 
+.navbar-dark .navbar-brand {
+	color: $light-color2;
+	font-weight: bold;
+}
+
+.navbar-dark .navbar-brand:hover {
+	color: $light-color2;
+}
+
 .navbar .aa-DetachedSearchButton .aa-DetachedSearchButtonIcon {
-	color: $dark-color2;
+	color: $light-color2;
 }
 
 .navbar-dark .navbar-toggler-icon {
 	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23292727' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar #quarto-search.type-overlay .aa-Autocomplete svg.aa-SubmitIcon {
+	width: 26px;
+	height: 26px;
+	color: $light-color;
+	opacity: 1;
+}
+
+.about_style {
+	color: $main-color;
+	font-weight: 700;
+	font-size: 1.5rem;
+}
+
+.about_entry {
+	display: grid;
+	gap: 0;
+	grid-template-columns: 1fr 2fr;
+	justify-content: center;
+}
+
+.about_entry div {
+	border: 1px solid white;
+}
+
+.about_entry_title {
+	color: $dark-color2;
+	font-weight: 700;
+}
+
+.about_entry_text {
+	margin-top: -20px;
+}
+
+.about-link {
+	font-size: .8em;
+	padding: .25em .5em;
+	border-radius: 4px;
+	background-color: #333d4a;
+	color: #fff;
+	text-decoration: none;
+}
+
+.about-link:hover {
+	color: $light-color2;
+}
+
+.about-links {
+	display: flex;
+	flex-direction: row;
+	column-gap: .8em;
+	row-gap: 15px;
+	justify-content: center;
+	flex-wrap: wrap;
 }

@@ -6,7 +6,7 @@ project:
     browser: true
 
 website:
-  # title: "Paulo Oliveira"
+  title: "Paulo Oliveira"
   navbar:
     left:
       - href: index.qmd
@@ -15,11 +15,16 @@ website:
         text: Blog
       - href: about.qmd
         text: Sobre
+    right: 
+      - href: https://www.github.com/paulofelipe
+        icon: github
+      - icon: twitter
+        href: https://twitter.com/paulofelipeao
 format:
   html:
     theme:
       - mytheme.scss
-    mainfont: Nunito
+    mainfont: Ibm Plex Sans
     toc: true
 
 

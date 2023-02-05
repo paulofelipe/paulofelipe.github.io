@@ -1,5 +1,194 @@
 ---
-title: "About"
+title: ""
 ---
 
-# `r fontawesome::fa("graduation-cap")` Educação
+Aqui, eu listo minha formação acadêmica e a minha experiência profissional. Desde a graduação venho trabalhando com análise de dados e econometria. Inicialmente, a minha linguagem de trabalho era o Stata. Contudo, a partir de 2014 comecei a usar o **R como linguangem principal**. Em algumas competições do Kaggle, também trabalhei com o Python.
+
+<h1 class="about_style">Educação {{< fa graduation-cap >}} </h1>
+
+::::: {.about_entry}
+  
+::: {}
+2009-2011
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Universidade Federal do Ceará - UFC
+:::
+
+:::{.about_entry_text}
+Mestrado em economia.
+:::
+
+:::::
+
+:::::
+
+
+::::: {.about_entry}
+  
+::: {}
+2004-2008
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Universidade Federal do Ceará - UFC
+:::
+
+:::{.about_entry_text}
+Graduação em ciências econômicas.
+:::
+
+:::::
+
+:::::
+
+<h1 class="about_style">Trabalho {{< fa briefcase >}} </h1>
+
+::::: {.about_entry}
+  
+::: {}
+2023-Atual
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Ministério do Desenvolvimento, Indústria, Comércio e Serviços - MDICS
+:::
+
+:::{.about_entry_text}
+Cargo: Analista de Comércio Exterior
+:::
+
+:::::
+
+:::::
+
+::::: {.about_entry}
+  
+::: {}
+2019-2022
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Ministério da Economia - ME
+:::
+
+:::{.about_entry_text}
+Cargo: Analista de Comércio Exterior
+:::
+
+:::::
+
+:::::
+
+
+::::: {.about_entry}
+  
+::: {}
+2013-2018
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Ministério do Desenvolvimento Indústria e Comércio Exterior - MDIC
+:::
+
+:::{.about_entry_text}
+Cargo: Analista de Comércio Exterior
+:::
+
+:::::
+
+:::::
+
+
+::::: {.about_entry}
+  
+::: {}
+2011-2013
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Defensoria Pública da União - DPU
+:::
+
+:::{.about_entry_text}
+Cargo: Economista
+:::
+
+:::::
+
+:::::
+
+<h1 class="about_style">Cursos Ministrados {{< fa chalkboard-user >}} </h1>
+
+::::: {.about_entry}
+  
+::: {}
+2018
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Curso de Ciência de Dados com o R
+:::
+
+:::{.about_entry_text}
+Local: IBPAD.
+:::
+
+:::::
+
+:::::
+
+::::: {.about_entry}
+  
+::: {}
+2017
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Curso de Ciência de Dados com o R
+:::
+
+:::{.about_entry_text}
+Local: IBPAD.
+:::
+
+:::::
+
+:::::
+
+::::: {.about_entry}
+  
+::: {}
+2016
+:::
+
+::::: {}
+
+:::{.about_entry_title}
+Curso de Análise de Dados de Comércio Exterior com R (Módulo 2)
+:::
+
+:::{.about_entry_text}
+Local: MDIC.
+:::
+
+:::::
+
+:::::
