@@ -20,6 +20,8 @@ website:
         href: https://twitter.com/paulofelipeao
       - icon: github
         href: https://www.github.com/paulofelipe
+  page-footer: 
+    left: "Copyright 2023, Paulo Oliveira" 
 format:
   html:
     theme:

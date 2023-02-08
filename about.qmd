@@ -192,3 +192,13 @@ Local: MDIC.
 :::::
 
 :::::
+
+
+
+# Projetos
+
+- Pacote em R para simulações utilizando o modelo de comércio desenvolvido em Caliendo e Parro (2015). [cp2015](https://github.com/paulofelipe/cp2015)
+
+- Htmlwidget para R para utilização da biblioteca D3plus (v1). [D3plusR](https://github.com/paulofelipe/D3plusR)
+
+- Livro: [Ciência de Dados com R - Introdução](https://cdr.ibpad.com.br/) com Saulo Guerra, Robert MacDonnell e Sillas Gonzaga.

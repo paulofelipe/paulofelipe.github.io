@@ -1,33 +1,50 @@
 ---
-title: "Paulo Oliveira" # if using a built-in template, this title appears under your photo
+# title: "" # if using a built-in template, this title appears under your photo
 image: profile2.jpeg # great spot for your professional headshot :) 
-about: 
-  template: trestles # see other templates at https://quarto.org/docs/websites/website-about.html#templates
-  image-shape: rounded
-  image-width: 15em
-  links:
-    - icon: linkedin # you'll need to the fontawesome extension to include icons: https://github.com/quarto-ext/fontawesome
-      text: LinkedIn
-      href: https://www.linkedin.com/in/paulo-oliveira-795748140/
-    - icon: twitter
-      text: Twitter
-      href: https://twitter.com/paulofelipeao
-    - icon: github
-      text: GitHub
-      href: https://github.com/paulofelipe
+page-layout: custom
+toc: false
+# about: 
+#   template: trestles # see other templates at https://quarto.org/docs/websites/website-about.html#templates
+#   image-shape: rounded
+#   image-width: 15em
+#   links:
+#     - icon: linkedin # you'll need to the fontawesome extension to include icons: https://github.com/quarto-ext/fontawesome
+#       text: LinkedIn
+#       href: https://www.linkedin.com/in/paulo-oliveira-795748140/
+#     - icon: twitter
+#       text: Twitter
+#       href: https://twitter.com/paulofelipeao
+#     - icon: github
+#       text: GitHub
+#       href: https://github.com/paulofelipe
 ---
 
-## Olá,
+::::: {.title-page}
 
-Eu sou o **Paulo**. Minha formação é em economia. Minha área de interesse é análise de dados em geral, como simulação com base em modelos econômicos, econometria e aprendizado de máquina.
+::: {.title-container}
 
----
+<div>
+  <img src="profile3.jpeg" class="center-image">
+  <h1 style="text-align: center;font-weight:700;font-size:1.5rem;">Paulo Oliveira</h1>
+</div>
 
-## Projetos
+<div>
+# Olá, {.title-home}
 
-- Pacote em R para simulações utilizando o modelo de comércio desenvolvido em Caliendo e Parro (2015). [cp2015](https://github.com/paulofelipe/cp2015)
+Eu sou o **Paulo**. Formação em economia e interesse em análises de dados e métodos quantitativos. Experiência com econometria, machine learning, equilíbrio geral computável e visualização de dados.
 
-- Htmlwidget para R para utilização da biblioteca D3plus (v1). [D3plusR](https://github.com/paulofelipe/D3plusR)
 
-- Livro: [Ciência de Dados com R - Introdução](https://cdr.ibpad.com.br/) com Saulo Guerra, Robert MacDonnell e Sillas Gonzaga.
+<div class="links-flex">
+[{{< fa brands linkedin >}}](https://www.linkedin.com/in/paulo-oliveira-795748140/){.btn .btn-dark}
 
+[{{< fa brands github >}}](https://github.com/paulofelipe){.btn .btn-dark}
+
+[{{< fa brands twitter >}}]( https://twitter.com/paulofelipeao){.btn .btn-dark}
+</div>
+
+</div>
+
+
+:::
+
+:::::

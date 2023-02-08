@@ -5,26 +5,47 @@
 /*-- scss:defaults --*/
 
 // Colors
-$main-color: #333d4a;
-$dark-color: rgb(85, 85, 85);
-$dark-color2: rgb(99, 126, 167);
-$light-color: #fff;
-$light-color2: #ccefff;
+$main-color: #282a36;
+$dark-color: rgb(68, 69, 71);
+$dark-color2: #44475a;
+$light-color: #f8f8f2;
+$light-color2: #50fa7b;
 $light-blue: rgb(91, 132, 209);
 
 /*-- scss:rules --*/
 
+body {
+	background-color: $light-color;
+}
+
 .navbar-dark {
-	background-color: $main-color;
+	background-color: $dark-color;
 	display: grid;
 	gap: 0;
 	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
 }
 
+footer {
+	display: grid;
+	gap: 0;
+	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
+	// border-top: 1px solid #dee2e6;
+	background-color: $dark-color;
+}
+
+
 @media only screen and (min-width: 700px) {
   .navbar-container {
 		margin-left: 25px;
 		grid-column: page-start/page-end;
+	}
+
+	.nav-footer {
+		margin-left: 25px;
+		grid-column: page-start/page-end;
+		border-top: 0px !important;
+		background-color: $dark-color;
+		color: $light-color;
 	}
 }
 
@@ -72,7 +93,7 @@ a:hover {
 }
 
 .navbar-dark .navbar-brand {
-	color: $light-color2;
+	color: $light-color;
 	font-weight: bold;
 }
 
@@ -109,7 +130,7 @@ a:hover {
 }
 
 .about_entry div {
-	border: 1px solid white;
+	border: 1px solid $light-color;
 }
 
 .about_entry_title {
@@ -134,7 +155,7 @@ a:hover {
 	color: $light-color2;
 }
 
-.about-links {
+.links-flex {
 	display: flex;
 	flex-direction: row;
 	column-gap: .8em;
@@ -145,4 +166,94 @@ a:hover {
 
 .page-columns>* {
 	grid-column: page-start/page-end;
+}
+
+.title-page {
+	display: grid;
+	gap: 0;
+	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
+	background-color: $light-color;
+	color: $main-color;
+	height: calc(100vh - 145px);
+}
+
+.title-container {
+	align-self: center;
+  justify-self: center;
+	grid-column: page-start/page-end;
+	// display: grid;
+	// grid-template-columns: 1fr 2fr;
+	// align-items: center;
+}
+
+.title-container > div {
+	margin-left: 30px;
+}
+
+h1.title-home, .title-home.h1 {
+	margin-top: 0;
+	font-size: 2rem;
+	font-weight: 700;
+	color: $dark-color2;
+}
+
+.fullcontent {
+	height: 100vh;
+	background-color: $light-color;
+}
+
+.center-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+	height: 200px;
+	border-radius: 50%;
+	border: 3px solid $dark-color;
+}
+
+.btn-dark {
+	background-color: $dark-color !important;
+}
+
+.btn-dark:hover {
+	background-color: $light-color2 !important;
+	border-color: $light-color2;
+}
+
+
+@media only screen and (min-width: 700px) {
+  .navbar-container {
+		margin-left: 25px;
+		grid-column: page-start/page-end;
+	}
+
+	.nav-footer {
+		margin-left: 25px;
+		grid-column: page-start/page-end;
+		border-top: 0px !important;
+		background-color: $dark-color;
+		color: $light-color;
+	}
+}
+
+@media only screen and (max-width: 500px) {
+  .title-page {
+		display: block;
+		height: 100vh;
+		margin-top: 100px;
+		margin-left: 20px;
+		margin-right: 20px;
+	}
+
+	footer {
+		display: block;
+		background-color: $dark-color;
+	}
+
+	.nav-footer {
+		margin-left: 25px;		
+		border-top: 0px !important;
+		background-color: $dark-color;
+		color: $light-color;
+	}
 }
