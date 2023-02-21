@@ -31,7 +31,7 @@ toc: false
 <div>
 # Olá, {.title-home}
 
-Eu sou o **Paulo**. Formação em economia e interesse em análises de dados e métodos quantitativos. Experiência com econometria, machine learning, equilíbrio geral computável e visualização de dados.
+Eu sou um economista com foco em análise de dados e métodos quantitativos. Tenho experiência econometria, machine learning, equilíbrio geral computável e visualização de dados.
 
 
 <div class="links-flex">
