@@ -1,5 +1,6 @@
 ---
-# title: "" # if using a built-in template, this title appears under your photo
+# title: "Home" # if using a built-in template, this title appears under your photo
+pagetitle: Paulo Felipe - Home
 image: profile2.jpeg # great spot for your professional headshot :) 
 page-layout: custom
 toc: false
