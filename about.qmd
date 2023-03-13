@@ -6,7 +6,7 @@ pagetitle: Paulo Felipe - Sobre
 
 A minha formação (gradução e mestrado) é em economia na Universidade Federal do Ceará - UFC. Desde a graduação venho trabalhando com análise de dados e econometria. Também participei de algumas competições no [Kaggle](https://www.kaggle.com/paulofelipe). Inicialmente, a minha linguagem de trabalho era o Stata. Contudo, a partir de 2014 comecei a usar o **R como linguangem principal**. Também trabalhei com o Python em alguns projetos do Kaggle.
 
-<h1 class="about_style">Projetos Público </h1>
+<h1 class="about_style">Projetos Públicos</h1>
 
 - Pacote em R para simulações utilizando o modelo de comércio desenvolvido em Caliendo e Parro (2015). [cp2015](https://github.com/paulofelipe/cp2015)
 
