@@ -1,0 +1,130 @@
+---
+title: Binscatter
+date: "2023-03-16"
+subtitle: "Visualizando relações entre variáveis com binned scatterplots"
+lang: pt
+draft: true
+fig-cap-location: top
+bibliography: referencias.bib
+image: binned.png
+categories:
+  - python
+  - Econometria
+  - Visualização de dados
+---
+
+
+# Introdução
+
+Neste post, irei tratar sobre o binscatter/binsreg seguindo o trabalho de @cattaneo2022. Este trabalho discute o gráfico do tipo binscater, que é comumente utilizado como alternativa ao scatterplot tradicional. Esse tipo de gráfico é uma ferramenta bastante útil para a visualização de relação entre duas variáveis. Nesse trabalho, os autores discutem um conjunto de falhas no procedimento usualmente adotado na utilização do binscatter. Adicionalmente, os autores desenvolvem a fundamentação teórica para a chamada regressão binscatter (binsreg), fornecendo um conjunto de procedimentos, como ajustes para covariáveis, testes formais para hipóteses, por exemplo, de linearidade. O método desenvolvido pelos autores também permite que a análise possa envolver variáveis binárias, de contagem e outros tipos de variáveis categóricas.
+
+# Primeiro Exemplo
+
+Suponha que você queira analisar visualmente a relação entre a variável $y$ e $x$. A prática comum é utilizar um scatterplot na intenção de visualizar alguma padrão de correlação. No entanto, em casos como muitos pontos, esse tipo de abordagem é prejudicada. Dessa forma, o binscatter aparece como uma ferramenta alternativa para esse tipo de visualização. O procedimento consiste em separar o suporte da variável $x$ em algumas "cestas" (bins) e calcular um valor único (comumente a média) da variável $y$ para cada conjunto separadamente.
+
+O código abaixo realiza uma comparação entre o scatterplot tradicional e o binscatter usando os dados disponibilizados por @cattaneo2022. Vale destacar que os autores disponibilizaram pacotes em R, Python e Stata, o que facilita a replicação do artigo. Veja [este link](https://nppackages.github.io/binsreg/) para mais detalhes.
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from binsreg import *
+
+# Config dos plots
+plt.rc('font', size=10)
+plt.rcParams['axes.spines.right'] = False
+plt.rcParams['axes.spines.top'] = False
+plt.rcParams['axes.grid'] = True
+plt.rcParams['axes.grid.axis'] = 'y'
+plt.rcParams['axes.axisbelow'] = True
+plt.rcParams['grid.color'] = "lightgrey"
+plt.rcParams['grid.linestyle'] = (5, (10, 3))
+plt.rcParams['grid.linewidth'] = 0.5
+
+# Dados - Cattaneo et al. (2022) - American Community Survey (ACS)
+acs_data = pd.read_stata(
+    "https://github.com/nppackages-replication/CCFF_2022_wp/raw/master/CCFF_2022_ACS_1.dta")
+
+acs_data.describe().T
+```
+
+Primeiramente, compara-se apenas o scatterplot com o binscatter. Os autores mostram um conjunto de visualizações adicionais com os mesmos dados que podem trazer mais (ou menos) informações, conforme a escolha da análise. Nessa análise, a variável $x$ é a renda per capita de um *zip code* (uma região coberta por um código postal) e a variável $y$ é a taxa da população sem seguro saúde na região. O binscatter foi construído usando 10 bins de forma arbitrária. Isto é, cada ponto representa um decil da distribuição da variável do eixo x. No eixo y, é apresentada a média da taxa pessoas não seguradas dentro de cada grupo (decil) de renda.
+
+```{python}
+# | fig-align: center
+# | fig-cap: "Comparação entre o scatterplot e o binned scatterplot"
+# | label: comparacao-scatter
+fig, (ax1, ax2) = plt.subplots(1, 2)
+fig.set_figwidth(9)
+fig.set_figheight(3.6)
+
+# dados
+x = acs_data['perCapitaIncome']
+y = acs_data['uninsuredRate']
+
+# Scatterplot
+ax1.scatter(x, y)
+ax1.set_xticks(np.arange(0, 400000, 1e5))
+
+ax1.set_title("Scatterplot")
+ax1.set_xlabel("Per Capita Income")
+ax1.set_ylabel("Percent Uninsured")
+
+# Binned Scatterplot
+est = binsreg(y=y, x=x, nbins=10, polyreg=1, binsmethod='dpi')
+dots = est.data_plot[0].dots
+reg = est.data_plot[0].poly
+ax2.scatter(x, y, alpha=0.1, color="#ecf0f1")
+ax2.plot(reg['x'], reg['fit'])
+ax2.scatter(dots['x'], dots['fit'], color="blue")
+ax2.set_title("Binned Scatterplot")
+ax2.set_xlim((0, 80000))
+ax2.set_ylim((0, 40))
+plt.show()
+```
+ 
+
+# Least Squares Binscatter
+
+No paper, @cattaneo2022 detalham o que é chamado de least squares binscatter. O método é uma extensão do binscatter tradicional e permite a inclusão de covariáveis. Os autores afirmam que o objetivo é estimar o valor esperado de $y$ dado $x$, controlando por um conjunto adicional de variáveis $\mathbf{w}$ quando for necessário. Isto é, o objetivo do binscatter seria observar a relação entre $y$ e $x$ controlando por $\mathbf{w}$. Os autores trabalharam com um modelo semi-linear definido por:
+$$y_i = \mu_0(x_i) + \mathbf{w_i}^\prime \gamma_0 + \epsilon_i, \quad \mathbf{E}[\epsilon_i | x_i, \mathbb{w_i}] = 0.$$
+Note que o modelo é linear em $\mathbf{w_i}$, mas não em $x_i$.
+
+### Estimação
+
+A estimação do binscatter tem três elementos:
+
+  * A separação do suporte da variável $x$ em cestas (bins);
+  * A estimação dentro de cada cesta (bin);
+  * O tratamento adotado para os controles $\mathbf{w}_i$. 
+
+Primeiramente, é preciso escolher o número de bins, $J$, e como dividir o suporte da variável nesses bins. A prática comum, segundo os autores, é adotar um espaçamento por quantis. O esquema de partição é denotado por $\hat{\Delta} = \{\hat{\mathcal{B}}_1, \hat{\mathcal{B}}_2, \dots,\hat{\mathcal{B}}_J \}$, em que as observações do primeiro quantil de $x$ pertencem ao conjunto $\hat{\mathcal{B}}_1$, as observações do segundo quantil de $x$ pertencem ao conjunto $\hat{\mathcal{B}}_2$ e assim por diante.
+
+Sobre a estimação dentro de cada bin, tem-se que a forma usual é calcular a média de $y$ dentro de cada bin. Isto é, seria estimado um modelo *piecewise* constante ($\mathbb{E}[y_i|x_i] = \overline{y}_j$ para o j-ésimo bin). O binscatter canônico é definido da seguinte forma:
+$$\mathbb{E}[y_i|x_i] = \hat{\mathbf{b}}_0 (x_i)^\prime \widehat{\mathbf{\beta}},$$
+
+$$\widehat{\mathbf{\beta}} = \underset{\beta \in \mathbb{R}^J}{\operatorname{argmin}} \sum_{i = 1}^n \left(y_i - \hat{\mathbf{b}}_0 (x_i)^\prime \beta \right)^2,$$
+em que $\hat{\mathbf{b}}_0 = \left(\mathbb{1}_{\hat{\mathcal{B}}_1}, \mathbb{1}_{\hat{\mathcal{B}}_2}, \dots, \mathbb{1}_{\hat{\mathcal{B}}_J} \right)$ é uma matriz de indicadores binários que indica a qual bin pertence cada observação.
+
+@cattaneo2022 ampliam o binscatter canônico para permitir a inclusão de controles e permitir funções $\hat{\mathbf{b}}$ mais flexíveis. A estimação é feita da seguinte forma:
+
+# create a matrix 2 x 1 in latex
+$$
+\begin{bmatrix}
+    \widehat{\mathbf{\beta}} \\
+    \widehat{\mathbf{\gamma}}
+\end{bmatrix}
+ =\underset{\beta, \gamma}{\operatorname{argmin}} \sum_{i = 1}^n \left(y_i - \hat{\mathbf{b}} (x_i)^\prime \beta - w_i^\prime \gamma \right)^2
+$$
+
+```{python}
+
+```{python}
+fig, ax = plt.subplots(1, 1)
+fig.set_figwidth(4)
+fig.set_figheight(3.6)
+
+ax.plot(reg['x'], reg['fit'])
+```
+
+

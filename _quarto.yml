@@ -8,6 +8,8 @@ project:
 website:
   title: "Paulo Oliveira"
   navbar:
+    background: "#fff"
+    foreground: "#303030"
     left:
       - href: index.qmd
         text: Home
@@ -26,7 +28,7 @@ format:
   html:
     theme:
       - mytheme.scss
-    mainfont: Ibm Plex Sans
+    mainfont: Roboto
     toc: true
 
 

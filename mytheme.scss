@@ -1,15 +1,17 @@
 /* css styles */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,200;0,400;0,600;0,700;1,200;1,400;1,600;1,700&display=swap');
-
+// @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,200;0,400;0,600;0,700;1,200;1,400;1,600;1,700&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,600;1,200;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 /*-- scss:defaults --*/
 
 // Colors
 $main-color: #282a36;
-$dark-color: rgb(68, 69, 71);
+$dark-color: #303030;
 $dark-color2: #44475a;
-$light-color: #f8f8f2;
-$light-color2: #50fa7b;
+$light-color: #ffffff;
+$light-color2: #4786b9;
 $light-blue: rgb(91, 132, 209);
 
 /*-- scss:rules --*/
@@ -18,12 +20,21 @@ body {
 	background-color: $light-color;
 }
 
-.navbar-dark {
-	background-color: $dark-color;
-	display: grid;
-	gap: 0;
-	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
+p {
+	font-weight: 300;
 }
+
+li,
+p {
+	font-weight: 3;
+}
+
+// .navbar-dark {
+// 	background-color: $dark-color;
+// 	display: grid;
+// 	gap: 0;
+// 	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
+// }
 
 footer {
 	display: grid;
@@ -59,21 +70,21 @@ div.quarto-about-trestles .about-entity .about-link {
 }
 
 // Link da navbark
-.navbar-dark .navbar-nav .nav-link {
-	color: $light-color;
-}
+// .navbar-dark .navbar-nav .nav-link {
+// 	color: $light-color;
+// }
 
-.navbar-dark .navbar-nav .show>.nav-link,
-.navbar-dark .navbar-nav .active>.nav-link,
-.navbar-dark .navbar-nav .nav-link.active {
-	color: $light-color;
-	font-weight: bold;
-}
+// .navbar-dark .navbar-nav .show>.nav-link,
+// .navbar-dark .navbar-nav .active>.nav-link,
+// .navbar-dark .navbar-nav .nav-link.active {
+// 	color: $light-color;
+// 	font-weight: bold;
+// }
 
-.navbar-dark .navbar-nav .nav-link:hover,
-.navbar-dark .navbar-nav .nav-link:focus {
-	color: $light-color2;
-}
+// .navbar-dark .navbar-nav .nav-link:hover,
+// .navbar-dark .navbar-nav .nav-link:focus {
+// 	color: $light-color2;
+// }
 
 div.quarto-about-trestles .about-entity .about-link:hover {
 	color: $light-color2;
@@ -93,28 +104,28 @@ a:hover {
 }
 
 .navbar-dark .navbar-brand {
-	color: $light-color;
+	// color: $light-color;
 	font-weight: bold;
 }
 
-.navbar-dark .navbar-brand:hover {
-	color: $light-color2;
-}
+// .navbar-dark .navbar-brand:hover {
+// 	color: $light-color2;
+// }
 
-.navbar .aa-DetachedSearchButton .aa-DetachedSearchButtonIcon {
-	color: $light-color2;
-}
+// .navbar .aa-DetachedSearchButton .aa-DetachedSearchButtonIcon {
+// 	color: $light-color2;
+// }
 
-.navbar-dark .navbar-toggler-icon {
-	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23292727' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-}
+// .navbar-dark .navbar-toggler-icon {
+// 	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23292727' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+// }
 
-.navbar #quarto-search.type-overlay .aa-Autocomplete svg.aa-SubmitIcon {
-	width: 26px;
-	height: 26px;
-	color: $light-color;
-	opacity: 1;
-}
+// .navbar #quarto-search.type-overlay .aa-Autocomplete svg.aa-SubmitIcon {
+// 	width: 26px;
+// 	height: 26px;
+// 	color: $light-color;
+// 	opacity: 1;
+// }
 
 .about_style {
 	color: $main-color;
