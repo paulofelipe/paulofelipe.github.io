@@ -3,12 +3,12 @@ title: Binscatter
 date: "2023-03-16"
 subtitle: "Visualizando relações entre variáveis com binned scatterplots"
 lang: pt
-draft: true
+draft: false
 fig-cap-location: top
 bibliography: referencias.bib
 image: binned.png
 categories:
-  - python
+  - R
   - Econometria
   - Visualização de dados
 ---
@@ -24,65 +24,69 @@ Suponha que você queira analisar visualmente a relação entre a variável $y$ 
 
 O código abaixo realiza uma comparação entre o scatterplot tradicional e o binscatter usando os dados disponibilizados por @cattaneo2022. Vale destacar que os autores disponibilizaram pacotes em R, Python e Stata, o que facilita a replicação do artigo. Veja [este link](https://nppackages.github.io/binsreg/) para mais detalhes.
 
-```{python}
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from binsreg import *
+```{r}
+#| message: false
 
-# Config dos plots
-plt.rc('font', size=10)
-plt.rcParams['axes.spines.right'] = False
-plt.rcParams['axes.spines.top'] = False
-plt.rcParams['axes.grid'] = True
-plt.rcParams['axes.grid.axis'] = 'y'
-plt.rcParams['axes.axisbelow'] = True
-plt.rcParams['grid.color'] = "lightgrey"
-plt.rcParams['grid.linestyle'] = (5, (10, 3))
-plt.rcParams['grid.linewidth'] = 0.5
+library(dplyr)
+library(ggplot2)
+library(binsreg)
+library(haven)
+library(patchwork)
+library(hrbrthemes)
+library(PNADcIBGE)
 
-# Dados - Cattaneo et al. (2022) - American Community Survey (ACS)
-acs_data = pd.read_stata(
-    "https://github.com/nppackages-replication/CCFF_2022_wp/raw/master/CCFF_2022_ACS_1.dta")
-
-acs_data.describe().T
+acs_data <- read_dta(
+  "https://github.com/nppackages-replication/CCFF_2022_wp/raw/master/CCFF_2022_ACS_1.dta"
+)
 ```
 
 Primeiramente, compara-se apenas o scatterplot com o binscatter. Os autores mostram um conjunto de visualizações adicionais com os mesmos dados que podem trazer mais (ou menos) informações, conforme a escolha da análise. Nessa análise, a variável $x$ é a renda per capita de um *zip code* (uma região coberta por um código postal) e a variável $y$ é a taxa da população sem seguro saúde na região. O binscatter foi construído usando 10 bins de forma arbitrária. Isto é, cada ponto representa um decil da distribuição da variável do eixo x. No eixo y, é apresentada a média da taxa pessoas não seguradas dentro de cada grupo (decil) de renda.
 
-```{python}
-# | fig-align: center
-# | fig-cap: "Comparação entre o scatterplot e o binned scatterplot"
-# | label: comparacao-scatter
-fig, (ax1, ax2) = plt.subplots(1, 2)
-fig.set_figwidth(9)
-fig.set_figheight(3.6)
+```{r}
+#| output: false
 
-# dados
-x = acs_data['perCapitaIncome']
-y = acs_data['uninsuredRate']
-
-# Scatterplot
-ax1.scatter(x, y)
-ax1.set_xticks(np.arange(0, 400000, 1e5))
-
-ax1.set_title("Scatterplot")
-ax1.set_xlabel("Per Capita Income")
-ax1.set_ylabel("Percent Uninsured")
-
-# Binned Scatterplot
-est = binsreg(y=y, x=x, nbins=10, polyreg=1, binsmethod='dpi')
-dots = est.data_plot[0].dots
-reg = est.data_plot[0].poly
-ax2.scatter(x, y, alpha=0.1, color="#ecf0f1")
-ax2.plot(reg['x'], reg['fit'])
-ax2.scatter(dots['x'], dots['fit'], color="blue")
-ax2.set_title("Binned Scatterplot")
-ax2.set_xlim((0, 80000))
-ax2.set_ylim((0, 40))
-plt.show()
+# binscatter perCapitaIncome x uninsuredRate
+out_binsreg <- binsreg(
+  y = acs_data$uninsuredRate,
+  x = acs_data$perCapitaIncome,
+  data = acs_data,
+  nbins = 10,
+  polyreg = 1
+)
 ```
- 
+
+```{r}
+#| fig.width: 10
+#| fig.height: 5
+#| fig-align: center
+#| warning: false
+#| fig-cap: "Comparação entre o scatterplot e o binned scatterplot"
+#| label: fig-binscatter1
+
+# scatterplot perCapitaIncome x uninsuredRate
+p1 <- ggplot(acs_data, aes(x = perCapitaIncome, y = uninsuredRate)) +
+  geom_point(alpha = 0.1) +
+  labs(
+    title = "Scatterplot",
+    x = "Per Capita Income",
+    y = "Percent Uninsured"
+  ) +
+  theme_ipsum_rc()
+
+p2 <- out_binsreg$bins_plot +
+  labs(
+    title = "Binscatter",
+    x = "Per Capita Income",
+    y = "Percent Uninsured"
+  ) +
+  theme_ipsum_rc() +
+  coord_cartesian(
+    xlim = c(0, 80000),
+    ylim = c(0, 40)
+  )
+
+p1 + p2
+```
 
 # Least Squares Binscatter
 
@@ -98,33 +102,115 @@ A estimação do binscatter tem três elementos:
   * A estimação dentro de cada cesta (bin);
   * O tratamento adotado para os controles $\mathbf{w}_i$. 
 
-Primeiramente, é preciso escolher o número de bins, $J$, e como dividir o suporte da variável nesses bins. A prática comum, segundo os autores, é adotar um espaçamento por quantis. O esquema de partição é denotado por $\hat{\Delta} = \{\hat{\mathcal{B}}_1, \hat{\mathcal{B}}_2, \dots,\hat{\mathcal{B}}_J \}$, em que as observações do primeiro quantil de $x$ pertencem ao conjunto $\hat{\mathcal{B}}_1$, as observações do segundo quantil de $x$ pertencem ao conjunto $\hat{\mathcal{B}}_2$ e assim por diante.
+Primeiramente, é preciso escolher o número de bins, $J$, e como dividir o suporte da variável nesses bins. A prática comum, segundo os autores, é adotar um espaçamento por quantis. O esquema de partição é denotado por $\widehat{\Delta} = \{\widehat{\mathcal{B}}_1, \widehat{\mathcal{B}}_2, \dots,\widehat{\mathcal{B}}_J \}$, em que as observações do primeiro quantil de $x$ pertencem ao conjunto $\widehat{\mathcal{B}}_1$, as observações do segundo quantil de $x$ pertencem ao conjunto $\widehat{\mathcal{B}}_2$ e assim por diante.
 
-Sobre a estimação dentro de cada bin, tem-se que a forma usual é calcular a média de $y$ dentro de cada bin. Isto é, seria estimado um modelo *piecewise* constante ($\mathbb{E}[y_i|x_i] = \overline{y}_j$ para o j-ésimo bin). O binscatter canônico é definido da seguinte forma:
-$$\mathbb{E}[y_i|x_i] = \hat{\mathbf{b}}_0 (x_i)^\prime \widehat{\mathbf{\beta}},$$
+Sobre a estimação dentro de cada bin, tem-se que a prática usual é calcular a média de $y$ dentro de cada bin. Isto é, seria estimado um modelo *piecewise* constante ($\mathbb{E}[y_i|x_i] = \overline{y}_j$ para o j-ésimo bin). O binscatter canônico é definido da seguinte forma:
+$$\mathbb{E}[y_i|x_i] = \widehat{\mathbf{b}}_0 (x_i)^\prime \widehat{\mathbf{\beta}},$$
 
-$$\widehat{\mathbf{\beta}} = \underset{\beta \in \mathbb{R}^J}{\operatorname{argmin}} \sum_{i = 1}^n \left(y_i - \hat{\mathbf{b}}_0 (x_i)^\prime \beta \right)^2,$$
-em que $\hat{\mathbf{b}}_0 = \left(\mathbb{1}_{\hat{\mathcal{B}}_1}, \mathbb{1}_{\hat{\mathcal{B}}_2}, \dots, \mathbb{1}_{\hat{\mathcal{B}}_J} \right)$ é uma matriz de indicadores binários que indica a qual bin pertence cada observação.
+$$\widehat{\mathbf{\beta}} = \underset{\beta \in \mathbb{R}^J}{\operatorname{argmin}} \sum_{i = 1}^n \left(y_i - \widehat{\mathbf{b}}_0 (x_i)^\prime \beta \right)^2,$$
+em que $\widehat{\mathbf{b}}_0 = \left(\mathbb{1}_{\widehat{\mathcal{B}}_1}, \mathbb{1}_{\widehat{\mathcal{B}}_2}, \dots, \mathbb{1}_{\widehat{\mathcal{B}}_J} \right)$ é uma matriz de indicadores binários que indica a qual bin pertence cada observação.
 
-@cattaneo2022 ampliam o binscatter canônico para permitir a inclusão de controles e permitir funções $\hat{\mathbf{b}}$ mais flexíveis. A estimação é feita da seguinte forma:
+@cattaneo2022 ampliam o binscatter canônico para permitir a inclusão de controles e permitir funções $\widehat{\mathbf{b}}$ mais flexíveis. A estimação é feita da seguinte forma:
 
-# create a matrix 2 x 1 in latex
 $$
 \begin{bmatrix}
     \widehat{\mathbf{\beta}} \\
     \widehat{\mathbf{\gamma}}
 \end{bmatrix}
- =\underset{\beta, \gamma}{\operatorname{argmin}} \sum_{i = 1}^n \left(y_i - \hat{\mathbf{b}} (x_i)^\prime \beta - w_i^\prime \gamma \right)^2
+ =\underset{\beta, \gamma}{\operatorname{argmin}} \sum_{i = 1}^n \left(y_i - \widehat{\mathbf{b}} (x_i)^\prime \beta - w_i^\prime \gamma \right)^2.
 $$
+Nesse caso, tem-se que $\mathbb{E}[y_i|x, \mathbf{w}] = \widehat{\mathbf{b}} (x)^\prime \widehat{\mathbf{\beta}} + \widehat{\mathbf{w}}^\prime \widehat{\mathbf{\gamma}}$, onde $\widehat{\mathbf{w}})_i^\prime$ indica o valor de $\mathbf{w}_i$ no qual o valor esperado é calculado. Por exemplo, a expressão anterior pode ser computada no valor médio das variáveis de controle, $\overline{\mathbf{w}}^\prime$.
 
-```{python}
+## Escolha do número de bins
 
-```{python}
-fig, ax = plt.subplots(1, 1)
-fig.set_figwidth(4)
-fig.set_figheight(3.6)
+Comumente, os números de bins são escolhidos de forma arbitrária, por exemplo, $J = 20$ ou $J = 50$. @cattaneo2022 propõem um método para escolher o número de bins de forma mais sistemática. Os autores consideram duas abordagens que dependem do objetivo da análise: estimação não-paramétrica ou visualização de dados.
 
-ax.plot(reg['x'], reg['fit'])
+A primeira opção, $J_{IMSE}$, é baseada no erro quadrático médio integrado (IMSE) ótimo. O número de bins sendo escolhido dessa forma permite a utilização da regressão binscatter para quantificar a incerteza das estimativas geradas. A outra opção, é definir o número de bins $J$ de forma arbitrária, mas escolher a ordem polinomial $p$ da função $\mathbf{b}(x)$ que minimiza a distância entre $J_{IMSE}(p, v)$ e $J$, em que $v$ é a derivada de interesse da função do valor esperado de $y$ com relação a $x$. Para $v = 0$, a quantidade de interesse é $\mathbb{E}[y_i|x, \mathbf{w}]$.
+
+# Exemplo de aplicação
+
+Como aplicação, iremos utilizar os dados da PNAD para verificar a relação entre salários e idade. O objeto `pnadc_2019` contém os dados da PNAD Contínua para o 4º trimestre de 2019, com as variáveis de interesse já selecionadas. Foram selecionadas as seguintes variáveis:
+
+  * `V2007`: Sexo;
+  * `V2009`: Idade;
+  * `V2010`: Cor ou raça;
+  * `VD3004`: Nível de instrução mais elevado alcançado;
+  * `VD4019`: Rendimento mensal habitual de todos os trabalhos para pessoas de 14 anos ou mais de idade;
+  * `V1028`: Peso do domicílio e das pessoas.
+
+```{r}
+#| cache: true
+#| message: false
+pnadc_2019 <- get_pnadc(
+  year = 2019,
+  quarter = 4,
+  selected = FALSE,
+  vars = c("V2007", "V2009", "V2010", "VD3004", "VD4019"),
+  defyear = 2019,
+  design = FALSE,
+  savedir = "~/Downloads/pnad"
+) %>%
+  select(V2007, V2009, V2010, VD3004, VD4019, V1028) %>%
+  filter(!is.na(VD4019), V2009 >= 18, V2009 <= 60)
 ```
 
+```{r}
+head(pnadc_2019)
+```
+
+Abaixo, é estimado o binscatter com a seleção automática do número de bins. O parâmetro `randcut` é um valor que representa a proporção dos dados que será utilizada no momento de seleção dos bins. No caso, estamos usando todos os dados (`randcut = 1`). Como controle ($\mathbf{w}$), utilizamos as variáveis `V2007`, `V2010` e `VD3004`. O parâmetro `weights` indica o peso de cada observação na estimação. Nesse caso, utilizamos o peso do domicílio e das pessoas, `V1028`.
+
+```{r}
+#| output: false
+out_binsreg <- binsreg(
+  y = log(pnadc_2019$VD4019),
+  x = pnadc_2019$V2009,
+  w = ~ V2007 + V2010 + VD3004,
+  data = pnadc_2019,
+  weights = pnadc_2019$V1028,
+  binsmethod = "dpi",
+  randcut = 1
+)
+```
+
+
+O algortimo selecinou 9 bins.
+
+```{r}
+out_binsreg
+```
+
+A @fig-binscatter2 abaixo faz a comparação entre o scatterplot e o binscatter. Observa-se que no scatterplot tradicional é difícil visualizar a relação entre as variáveis, enquanto que no binscatter é possível observar uma relação positiva entre idade e salário, com uma leve queda após os 50 anos. O crescimento tende ser mais acentuado entre 20 e 30 anosver mais claramente a relação entre essas duas variáveis. Entre 20 e 30 anos, o salário cresce mais rapidamente. Após os 50 anos, o salário médio tende a apresentar uma leve queda.
+
+```{r}
+#| output: true
+#| fig.align: 'center'
+#| fig.width: 10
+#| fig.height: 5
+#| fig.cap: "Comparação entre o scatterplot e o binscatter para relação remuneração x idade"
+#| label: fig-binscatter2
+
+p1 <- ggplot(pnadc_2019, aes(x = V2009, y = log(VD4019))) +
+  geom_point(alpha = 0.1) +
+  labs(
+    x = "Idade",
+    y = "Log(salário)",
+    title = "Scatterplot"
+  ) +
+  theme_ipsum_rc()
+
+p2 <- out_binsreg$bins_plot +
+  theme_ipsum_rc() +
+  labs(
+    x = "Idade",
+    y = "Log(salário)",
+    title = "Binscatter"
+  )
+
+p1 + p2
+```
+
+# Considerações Finais
+
+Neste artigo, é feita uma breve apresentação sobre o binscatter, seguindo o trabalho de @cattaneo2022. O binscatter é uma ferramenta útil para visualização de dados e estimação de relações não-paramétricas entre duas variáveis, sendo a principal vantagem a possibilidade de visualização da relação entre duas variáveis de forma mais clara do que no scatterplot tradicional. 
 

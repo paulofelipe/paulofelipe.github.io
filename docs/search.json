@@ -18,7 +18,7 @@
     "href": "blog.html",
     "title": "Blog",
     "section": "",
-    "text": "Predições de Resultados de Futebol\n\n\nVamos documentar uma abordagem de predição de partidas de futebol utilizando modelos de regressões de Poisson.\n\n\n\n\nR\n\n\nModelos preditivos\n\n\n \n\n\n\n\n20 de dez. de 2022\n\n\n6 minutos\n\n\n\n\n\n\nNenhum item correspondente"
+    "text": "Binscatter\n\n\nVisualizando relações entre variáveis com binned scatterplots\n\n\n\n\nR\n\n\nEconometria\n\n\nVisualização de dados\n\n\n \n\n\n\n\n16 de mar. de 2023\n\n\n7 minutos\n\n\n\n\n\n\n  \n\n\n\n\nPredições de Resultados de Futebol\n\n\nVamos documentar uma abordagem de predição de partidas de futebol utilizando modelos de regressões de Poisson.\n\n\n\n\nR\n\n\nModelos preditivos\n\n\n \n\n\n\n\n20 de dez. de 2022\n\n\n6 minutos\n\n\n\n\n\n\nNenhum item correspondente"
   },
   {
     "objectID": "posts/teste.html",
@@ -173,5 +173,19 @@
     "title": "Olá,",
     "section": "Olá,",
     "text": "Olá,\nEu sou o Paulo. Minha formação é em economia. Minha área de interesse é análise de dados em geral, como simulação com base em modelos econômicos, econometria e aprendizado de máquina."
+  },
+  {
+    "objectID": "posts/2023-03-16-binscatter/index.html",
+    "href": "posts/2023-03-16-binscatter/index.html",
+    "title": "Binscatter",
+    "section": "",
+    "text": "Neste post, irei tratar sobre o binscatter/binsreg seguindo o trabalho de Cattaneo et al. (2022). Este trabalho discute o gráfico do tipo binscater, que é comumente utilizado como alternativa ao scatterplot tradicional. Esse tipo de gráfico é uma ferramenta bastante útil para a visualização de relação entre duas variáveis. Nesse trabalho, os autores discutem um conjunto de falhas no procedimento usualmente adotado na utilização do binscatter. Adicionalmente, os autores desenvolvem a fundamentação teórica para a chamada regressão binscatter (binsreg), fornecendo um conjunto de procedimentos, como ajustes para covariáveis, testes formais para hipóteses, por exemplo, de linearidade. O método desenvolvido pelos autores também permite que a análise possa envolver variáveis binárias, de contagem e outros tipos de variáveis categóricas."
+  },
+  {
+    "objectID": "posts/2023-03-16-binscatter/index.html#escolha-do-número-de-bins",
+    "href": "posts/2023-03-16-binscatter/index.html#escolha-do-número-de-bins",
+    "title": "Binscatter",
+    "section": "Escolha do número de bins",
+    "text": "Escolha do número de bins\nComumente, os números de bins são escolhidos de forma arbitrária, por exemplo, \\(J = 20\\) ou \\(J = 50\\). Cattaneo et al. (2022) propõem um método para escolher o número de bins de forma mais sistemática. Os autores consideram duas abordagens que dependem do objetivo da análise: estimação não-paramétrica ou visualização de dados.\nA primeira opção, \\(J_{IMSE}\\), é baseada no erro quadrático médio integrado (IMSE) ótimo. O número de bins sendo escolhido dessa forma permite a utilização da regressão binscatter para quantificar a incerteza das estimativas geradas. A outra opção, é definir o número de bins \\(J\\) de forma arbitrária, mas escolher a ordem polinomial \\(p\\) da função \\(\\mathbf{b}(x)\\) que minimiza a distância entre \\(J_{IMSE}(p, v)\\) e \\(J\\), em que \\(v\\) é a derivada de interesse da função do valor esperado de \\(y\\) com relação a \\(x\\). Para \\(v = 0\\), a quantidade de interesse é \\(\\mathbb{E}[y_i|x, \\mathbf{w}]\\)."
   }
 ]
