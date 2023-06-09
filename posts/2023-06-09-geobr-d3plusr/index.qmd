@@ -1,0 +1,130 @@
+---
+title: Visualizações de mapas interativos com o D3plusR
+date: "2023-06-09"
+subtitle: "Integrando o D3plusR com o geobr"
+lang: pt
+draft: false
+fig-cap-location: top
+image: geobr.png
+execute: 
+  cache: true
+categories:
+  - R
+  - Visualização de dados
+---
+
+# Introdução
+
+Este post tem o objetivo de mostrar a solução encontrada para uma questão levantada no repositório do `D3plusR` ([aqui](https://github.com/paulofelipe/D3plusR/issues/6)). O autor da *issue*  gostaria de saber se seria possível integrar as bases de dados espaciais do pacote `geobr` com o `D3plusR`. A resposta é sim! E é isso que vamos ver neste post. Apenas uma ressalva, como não sou especialista em dados espaciais, é possível que essa não seja a solução mais eficiente para o problema. Se você tem conhecimento sobre uma solução mais elegante, você pode compartilhar aqui ou no github.
+
+# Pacotes 
+
+Abaixo, estão listados os pacotes utilizados neste post.
+
+```{r}
+# Para instalar o D3plusR:
+# devtools::install_github('paulofelipe/D3plusR')
+
+library(geobr)
+library(geojsonio)
+library(sf)
+library(D3plusR)
+library(readxl)
+library(janitor)
+library(dplyr)
+```
+
+# Dados
+
+Para o exemplo, irei utilizar os dados do Censo 2010 por microrregião disponibilizados pelo IPEA ([Ipea Geo](https://www.ipea.gov.br/ipeageo/bases.html)). Especificamente, iremos calcular a proporção da população rural em relação ao total por microrregião. 
+
+```{r}
+temp_file <- tempfile()
+download.file(
+  url = "https://www.ipea.gov.br/ipeageo/arquivos/bases/IBGE_CIDADES_MICROREGIAO.xls",
+  destfile = temp_file,
+  mode = "wb"
+)
+dados_censo2010 <- read_excel(
+  path = temp_file,
+  sheet = "Censo 2010 (Sinopse)"
+) %>%
+  clean_names() %>%
+  select(
+    codigo_da_microregiao, populacao_residente, populacao_residente_rural
+  ) %>%
+  mutate(prop_rural = populacao_residente_rural / populacao_residente * 100)
+```
+
+
+# Obtendo o mapa
+
+Para a criação de um `geo_map` no `D3plusR`, é preciso de dados no formato `topojson`. O código abaixo lê os dados espaciais para as microrregiões brasileiras e converte para o formato `topojson`.
+
+
+```{r}
+#| warning: false
+#| eval: false
+# Prepara o mapa ---------------------------------------------------------------
+mapa <- read_micro_region(year = 2010, simplified = TRUE) %>%
+  st_transform(4326) %>%
+  transmute(id = code_micro, name_micro) %>%
+  topojson_json(
+    object_name = "BRMI",
+    geometry = "polygon",
+    type = "GeometryCollection",
+    quantization = 1e4,
+    crs = 4326
+  ) %>%
+  fromJSON(., simplifyVector = TRUE)
+
+# Cada "geometria" precisa ter um id. Adicionamos a partir das propriedades.
+mapa$objects$BRMI$geometries$id <-
+  mapa$objects$BRMI$geometries$properties$id
+
+# Salva o mapa em um arquivo json para uso futuro sem necessidade de repetir
+# o processo acima
+mapa <- write_json(mapa, "./br_micro.json")
+```
+
+O código abaixo faz um join com as propriedades da microrregiões para adicionar
+os nomes de cada microrregião no data.frame `dados_censo2010`.
+
+```{r prepara_dados}
+mapa <- read_json("./br_micro.json", simplifyVector = TRUE)
+```
+
+# Criando a visualização
+
+O código abaixo cria a visualização usando o pacote `D3plusR`. O importante é que a variável indicada como `id` no data.frame `dados_censo2010` tenha os mesmos códigos que estão no arquivo do mapa. No exemplo, são os códigos de microrregiões. Para mais detalhes sobre a utilização do `D3plusR`, veja [este tutorial](https://paulofelipe.github.io/tutorial_d3plusr/index.html).
+
+```{r}
+# Join para adicionar o nome das regiões aos dados
+dados_censo2010 <- dados_censo2010 %>%
+  left_join(
+    y = mapa$objects$BRMI$geometries$properties,
+    by = c("codigo_da_microregiao" = "id")
+  ) %>%
+  rename(id = codigo_da_microregiao)
+
+head(dados_censo2010)
+
+d3plus(
+  data = dados_censo2010,
+  type = "geo_map",
+  id = "id",
+  width = "100%",
+  height = 700,
+  percent_var = "prop_rural",
+  locale = "pt_BR",
+  dictionary = list(prop_rural = "Proporção da população rural"),
+) %>%
+  d3plusCoords(mapa, projection = "equirectangular") %>%
+  d3plusColor(value = "prop_rural") %>%
+  d3plusTooltip(value = "prop_rural") %>%
+  d3plusText(value = "name_micro") %>%
+  d3plusTitle(
+    value = "Proporção da população rural por microrregião - 2010",
+    font = list(size = 28, weight = 900)
+  )
+```
