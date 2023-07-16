@@ -11,7 +11,7 @@ toc: false
 #   links:
 #     - icon: linkedin # you'll need to the fontawesome extension to include icons: https://github.com/quarto-ext/fontawesome
 #       text: LinkedIn
-#       href: https://www.linkedin.com/in/paulo-oliveira-795748140/
+#       href: https://www.linkedin.com/in/paulo-oliveira-79     5748140/
 #     - icon: twitter
 #       text: Twitter
 #       href: https://twitter.com/paulofelipeao

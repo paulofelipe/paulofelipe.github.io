@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt" xml:lang="pt"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.335">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Paulo Oliveira - Dados de comércio exterior do Brasil com Arrow e Duckdb</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Nenhum resultado",
+    "search-matching-documents-text": "documentos correspondentes",
+    "search-copy-link-title": "Copiar link para a busca",
+    "search-hide-matches-text": "Esconder correspondências adicionais",
+    "search-more-match-text": "mais correspondência neste documento",
+    "search-more-matches-text": "mais correspondências neste documento",
+    "search-clear-button-title": "Limpar",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Paulo Oliveira</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">Sobre</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/paulofelipeao"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.github.com/paulofelipe"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Nesta página</h2>
+   
+  <ul>
+  <li><a href="#introdução" id="toc-introdução" class="nav-link active" data-scroll-target="#introdução">Introdução</a></li>
+  <li><a href="#bibliotecas" id="toc-bibliotecas" class="nav-link" data-scroll-target="#bibliotecas">Bibliotecas</a></li>
+  <li><a href="#criação-das-pastas" id="toc-criação-das-pastas" class="nav-link" data-scroll-target="#criação-das-pastas">Criação das pastas</a></li>
+  <li><a href="#download-dos-dados" id="toc-download-dos-dados" class="nav-link" data-scroll-target="#download-dos-dados">Download dos dados</a></li>
+  <li><a href="#leitura-dos-arquivos-csv" id="toc-leitura-dos-arquivos-csv" class="nav-link" data-scroll-target="#leitura-dos-arquivos-csv">Leitura dos arquivos csv</a></li>
+  <li><a href="#arrow-datasets" id="toc-arrow-datasets" class="nav-link" data-scroll-target="#arrow-datasets">Arrow datasets</a></li>
+  <li><a href="#realizando-consultas" id="toc-realizando-consultas" class="nav-link" data-scroll-target="#realizando-consultas">Realizando consultas</a>
+  <ul class="collapse">
+  <li><a href="#exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano" id="toc-exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano" class="nav-link" data-scroll-target="#exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano">Exemplo 1: Obtendo os totais de exportação e importação por ano</a></li>
+  <li><a href="#exemplo-2-principais-produtos-códigos-ncm-exportados-em-2022" id="toc-exemplo-2-principais-produtos-códigos-ncm-exportados-em-2022" class="nav-link" data-scroll-target="#exemplo-2-principais-produtos-códigos-ncm-exportados-em-2022">Exemplo 2: Principais produtos (códigos NCM) exportados em 2022</a></li>
+  </ul></li>
+  <li><a href="#considerações-finais" id="toc-considerações-finais" class="nav-link" data-scroll-target="#considerações-finais">Considerações finais</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Dados de comércio exterior do Brasil com Arrow e Duckdb</h1>
+<p class="subtitle lead">Baixe a base completa e faça consultas localmente</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">python</div>
+    <div class="quarto-category">Dados</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Data de Publicação</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">16 de julho de 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introdução" class="level2">
+<h2 class="anchored" data-anchor-id="introdução">Introdução</h2>
+<p>Este post apresenta um exemplo resumido de como:</p>
+<ul>
+<li>É posssível baixar a <strong>base completa</strong> de dados de comércio exterior;</li>
+<li>Salvar os arquivos no formato <strong>parquet</strong>;</li>
+<li>Usar o <strong>duckdb</strong> para fazer consultas SQL.</li>
+</ul>
+</section>
+<section id="bibliotecas" class="level2">
+<h2 class="anchored" data-anchor-id="bibliotecas">Bibliotecas</h2>
+<p>Abaixo, estão listadas as bibliotecas utilizadas neste post.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> shutil</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> urllib.request <span class="im">import</span> urlopen</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyarrow <span class="im">as</span> pa</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyarrow.parquet <span class="im">as</span> pq</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pyarrow.dataset <span class="im">as</span> ds</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> duckdb</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># avoid ssl verification error</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> ssl</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>ssl._create_default_https_context <span class="op">=</span> ssl._create_unverified_context</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="criação-das-pastas" class="level2">
+<h2 class="anchored" data-anchor-id="criação-das-pastas">Criação das pastas</h2>
+<p>O código abaixo cria as pastas que irão salvar os arquivos originais e a base de dados no formato parquet.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> os.path.exists(<span class="st">"secex_db"</span>):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  os.mkdir(<span class="st">"secex_db"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  os.mkdir(<span class="st">"secex_db/csvs"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  os.mkdir(<span class="st">"secex_db/parquet"</span>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="download-dos-dados" class="level2">
+<h2 class="anchored" data-anchor-id="download-dos-dados">Download dos dados</h2>
+<p>O próximo chunk de código lê a página que contém os links para os arquivos da base de dados e filtra apenas os arquivos que contém os dados de exportação e importação. Um detalhe importante é que esta página disponibiliza um arquivo completo para cada fluxo (exportação e importação). Contudo, o código abaixo extrai os links para os arquivos de cada separadamente.</p>
+<p>Veja <a href="https://www.gov.br/produtividade-e-comercio-exterior/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta">este link</a> para conhecer todos os dados disponibilizados pela Secretaria de Comércio Exterior.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>url <span class="op">=</span> <span class="st">'https://www.gov.br/produtividade-e-comercio-exterior/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta'</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>html <span class="op">=</span> urlopen(url)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>soup <span class="op">=</span> BeautifulSoup(html, <span class="st">'html.parser'</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> soup.find_all(<span class="st">'a'</span>, href<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>links <span class="op">=</span> [</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    link[<span class="st">'href'</span>] <span class="cf">for</span> link <span class="kw">in</span> links</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> re.search(<span class="vs">r'(EXP|IMP)_[0-9]</span><span class="sc">{4}</span><span class="vs">.csv'</span>, link[<span class="st">'href'</span>])]</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>links[:<span class="dv">5</span>]</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>['https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_1997.csv',
+ 'https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_1998.csv',
+ 'https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_1999.csv',
+ 'https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_2000.csv',
+ 'https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_2001.csv']</code></pre>
+</div>
+</div>
+<p>Para cada link, o arquivo csv para cada fluxo e ano é baixado e salvo na pasta <code>secex_db/csvs</code>.</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download all csv files</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> links:</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  file_name <span class="op">=</span> link.split(<span class="st">'/'</span>)[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  file_path <span class="op">=</span> os.path.join(<span class="st">'secex_db/csvs'</span>, file_name)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">not</span> os.path.exists(file_path):</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(file_path, <span class="st">'wb'</span>) <span class="im">as</span> f:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      f.write(urlopen(link).read())</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Para checagem, abaixo listamos o nome de cinco arquivos baixados.</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>csvs <span class="op">=</span> os.listdir(<span class="st">'secex_db/csvs'</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>csvs[:<span class="dv">5</span>]</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>['IMP_2002.csv',
+ 'EXP_2018.csv',
+ 'IMP_2012.csv',
+ 'EXP_1999.csv',
+ 'EXP_2001.csv']</code></pre>
+</div>
+</div>
+</section>
+<section id="leitura-dos-arquivos-csv" class="level2">
+<h2 class="anchored" data-anchor-id="leitura-dos-arquivos-csv">Leitura dos arquivos csv</h2>
+<p>Com os dados já baixados, o próximo passo será ler os arquivos csv e salvar no formato parquet. Para isso, utilizaremos o pacote <code>pyarrow</code>.</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Limpa as pastas caso já existam arquivos criados</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> os.path.exists(<span class="st">'secex_db/parquet/EXP/'</span>):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> folder <span class="kw">in</span> os.listdir(<span class="st">'secex_db/parquet/EXP/'</span>):</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    shutil.rmtree(<span class="ss">f'secex_db/parquet/EXP/</span><span class="sc">{</span>folder<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> os.path.exists(<span class="st">'secex_db/parquet/IMP/'</span>):</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> folder <span class="kw">in</span> os.listdir(<span class="st">'secex_db/parquet/IMP/'</span>):</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    shutil.rmtree(<span class="ss">f'secex_db/parquet/IMP/</span><span class="sc">{</span>folder<span class="sc">}</span><span class="ss">'</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> csv <span class="kw">in</span> csvs:</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  df <span class="op">=</span> pd.read_csv(</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      filepath_or_buffer<span class="op">=</span><span class="ss">f'secex_db/csvs/</span><span class="sc">{</span>csv<span class="sc">}</span><span class="ss">'</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      sep<span class="op">=</span><span class="st">';'</span>,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      encoding<span class="op">=</span><span class="st">'latin-1'</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>      low_memory<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      dtype<span class="op">=</span>{</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_ANO'</span>: <span class="st">'int16'</span>,</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_MES'</span>: <span class="st">'int16'</span>,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_NCM'</span>: <span class="st">'string'</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_UNID'</span>: <span class="st">'string'</span>,</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_PAIS'</span>: <span class="st">'string'</span>,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>          <span class="st">'SG_UF_NCM'</span>: <span class="st">'string'</span>,</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_VIA'</span>: <span class="st">'string'</span>,</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>          <span class="st">'CO_URF'</span>: <span class="st">'string'</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>          <span class="st">'QT_ESTAT'</span>: <span class="st">'float32'</span>,</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>          <span class="st">'KG_LIQUIDO'</span>: <span class="st">'float32'</span>,</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>          <span class="st">'VL_FOB'</span>: <span class="st">'float32'</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="st">'EXP'</span> <span class="kw">in</span> csv:</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    pq.write_to_dataset(</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>      pa.Table.from_pandas(df),</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      root_path<span class="op">=</span><span class="st">'secex_db/parquet/EXP/'</span>,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      partition_cols<span class="op">=</span>[<span class="st">'CO_ANO'</span>])</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span>:</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    pq.write_to_dataset(</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      pa.Table.from_pandas(df),</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>      root_path<span class="op">=</span><span class="st">'secex_db/parquet/IMP/'</span>,</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>      partition_cols<span class="op">=</span>[<span class="st">'CO_ANO'</span>])</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="arrow-datasets" class="level2">
+<h2 class="anchored" data-anchor-id="arrow-datasets">Arrow datasets</h2>
+<p>Com os arquivos salvos no formato parquet, podemos criar os datasets do <code>pyarrow</code> para cada fluxo (exportação e importação). Um ponto importante do dataset é que ele permite trabalhar com dados que podem ser maiores do que a memória disponível no seu computador. Ao abrir o dataset, o <code>pyarrow</code> apenas irá mapear a estrutura dos dados, sem carregá-los na memória.</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>exp_ds <span class="op">=</span> ds.dataset(<span class="st">'secex_db/parquet/EXP'</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">format</span><span class="op">=</span><span class="st">'parquet'</span>, partitioning<span class="op">=</span><span class="st">'hive'</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>exp_ds.schema</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>CO_MES: int16
+CO_NCM: string
+CO_UNID: string
+CO_PAIS: string
+SG_UF_NCM: string
+CO_VIA: string
+CO_URF: string
+QT_ESTAT: float
+KG_LIQUIDO: float
+VL_FOB: float
+CO_ANO: int32
+-- schema metadata --
+pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 1514</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>imp_ds <span class="op">=</span> ds.dataset(<span class="st">'secex_db/parquet/IMP'</span>,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">format</span><span class="op">=</span><span class="st">'parquet'</span>, partitioning<span class="op">=</span><span class="st">'hive'</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>imp_ds.schema</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>CO_MES: int16
+CO_NCM: string
+CO_UNID: string
+CO_PAIS: string
+SG_UF_NCM: string
+CO_VIA: string
+CO_URF: string
+QT_ESTAT: float
+KG_LIQUIDO: float
+VL_FOB: float
+VL_FRETE: int64
+VL_SEGURO: int64
+CO_ANO: int32
+-- schema metadata --
+pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 1742</code></pre>
+</div>
+</div>
+</section>
+<section id="realizando-consultas" class="level2">
+<h2 class="anchored" data-anchor-id="realizando-consultas">Realizando consultas</h2>
+<p>A biblioteca <code>duckdb</code> permite realizar consultas SQL diretamente nos datasets do Arrow. O <code>duckdb</code> irá fazer uma integração com o Arrow sem a necessidade copiar os dados. Para mais detalhes, veja <a href="https://duckdb.org/2021/12/03/duck-arrow.html">este post</a>.</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>con <span class="op">=</span> duckdb.<span class="ex">connect</span>()</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano" class="level3">
+<h3 class="anchored" data-anchor-id="exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano">Exemplo 1: Obtendo os totais de exportação e importação por ano</h3>
+<p>No código seguinte, é apresentado como é simples realizar consultas nos datasets <code>exp_ds</code> e <code>imp_ds</code>. As consultas abaixos calculam os totais exportados e importados em US$ Bilhões até o ano de 2022.</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>total_exp <span class="op">=</span> (</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  con</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  .execute(</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""SELECT CO_ANO, SUM(VL_FOB / 1E9) AS TOTAL_EXP_BI FROM exp_ds</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="st">     WHERE CO_ANO &lt;= 2022</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="st">     GROUP BY CO_ANO"""</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  .fetch_df()</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>total_imp <span class="op">=</span> (</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  con</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  .execute(</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""SELECT CO_ANO, SUM(VL_FOB / 1E9) AS TOTAL_IMP_BI FROM imp_ds</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE CO_ANO &lt;= 2022</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY CO_ANO"""</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  .fetch_df()</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Os dados são combinados em um dataframe único e printados na tabela abaixo.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>total_exp_imp <span class="op">=</span> (</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  total_exp</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  .merge(total_imp, on<span class="op">=</span><span class="st">'CO_ANO'</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  .sort_values(by<span class="op">=</span><span class="st">'CO_ANO'</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  .reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>total_exp_imp</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="26">
+
+<div>
+
+<table class="dataframe table table-sm table-striped"><caption>Exportações e importações brasileiras por ano - US$ Bilhões</caption>
+  <thead>
+    <tr>
+      <th></th>
+      <th>CO_ANO</th>
+      <th>TOTAL_EXP_BI</th>
+      <th>TOTAL_IMP_BI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1997</td>
+      <td>52.947496</td>
+      <td>60.537962</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1998</td>
+      <td>51.076604</td>
+      <td>58.672861</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1999</td>
+      <td>47.945909</td>
+      <td>50.259540</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2000</td>
+      <td>54.993160</td>
+      <td>56.976350</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2001</td>
+      <td>58.032294</td>
+      <td>56.569020</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2002</td>
+      <td>60.147158</td>
+      <td>48.274764</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2003</td>
+      <td>72.776747</td>
+      <td>49.307163</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2004</td>
+      <td>95.121672</td>
+      <td>63.813637</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2005</td>
+      <td>118.597835</td>
+      <td>74.692216</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2006</td>
+      <td>137.581151</td>
+      <td>92.531097</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>2007</td>
+      <td>159.816384</td>
+      <td>122.041949</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>2008</td>
+      <td>195.764624</td>
+      <td>174.707088</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>2009</td>
+      <td>151.791674</td>
+      <td>129.397612</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>2010</td>
+      <td>200.434135</td>
+      <td>183.336965</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2011</td>
+      <td>253.666310</td>
+      <td>227.969757</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>2012</td>
+      <td>239.952538</td>
+      <td>225.166426</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>2013</td>
+      <td>232.544256</td>
+      <td>241.500886</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2014</td>
+      <td>220.923237</td>
+      <td>230.823019</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2015</td>
+      <td>186.782355</td>
+      <td>173.104259</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2016</td>
+      <td>179.526129</td>
+      <td>139.321358</td>
+    </tr>
+    <tr>
+      <th>20</th>
+      <td>2017</td>
+      <td>214.988108</td>
+      <td>158.951444</td>
+    </tr>
+    <tr>
+      <th>21</th>
+      <td>2018</td>
+      <td>231.889523</td>
+      <td>185.321984</td>
+    </tr>
+    <tr>
+      <th>22</th>
+      <td>2019</td>
+      <td>221.126807</td>
+      <td>185.927968</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <td>2020</td>
+      <td>209.180242</td>
+      <td>158.786825</td>
+    </tr>
+    <tr>
+      <th>24</th>
+      <td>2021</td>
+      <td>280.814577</td>
+      <td>219.408049</td>
+    </tr>
+    <tr>
+      <th>25</th>
+      <td>2022</td>
+      <td>334.136038</td>
+      <td>272.610687</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sns.<span class="bu">set</span>(rc<span class="op">=</span>{<span class="st">'figure.figsize'</span>: (<span class="dv">8</span>, <span class="dv">5</span>)})</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>sns.set_theme(style<span class="op">=</span><span class="st">"whitegrid"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>sns.lineplot(data<span class="op">=</span>total_exp_imp, x<span class="op">=</span><span class="st">"CO_ANO"</span>,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>             y<span class="op">=</span><span class="st">"TOTAL_EXP_BI"</span>, label<span class="op">=</span><span class="st">"Exportação"</span>)</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>sns.lineplot(data<span class="op">=</span>total_exp_imp, x<span class="op">=</span><span class="st">"CO_ANO"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>             y<span class="op">=</span><span class="st">"TOTAL_IMP_BI"</span>, label<span class="op">=</span><span class="st">"Importação"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Ano'</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'US$ Bilhões'</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Exportação e Importação Brasileira'</span>)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p></p><figcaption class="figure-caption">Exportações e importações brasileiras por ano</figcaption><p></p>
+<p><img src="index_files/figure-html/cell-13-output-1.png" width="676" height="458" class="figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="exemplo-2-principais-produtos-códigos-ncm-exportados-em-2022" class="level3">
+<h3 class="anchored" data-anchor-id="exemplo-2-principais-produtos-códigos-ncm-exportados-em-2022">Exemplo 2: Principais produtos (códigos NCM) exportados em 2022</h3>
+<p>Neste exemplo, iremos obter os 10 principais produtos exportados pelo Brasil em 2022. Como o dataset <code>exp_ds</code> guarda apenas os códigos, iremos ler a tabela de correlação que está disponível na mesma página que disponibiliza os dados de exportação e importação. A tabela de correlação pode ser acessada <a href="https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv">aqui</a>.</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>tabela_ncm <span class="op">=</span> pd.read_csv(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">'https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv'</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  sep<span class="op">=</span><span class="st">';'</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  encoding<span class="op">=</span><span class="st">'latin-1'</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  dtype<span class="op">=</span>{<span class="st">'CO_NCM'</span>: <span class="st">'string'</span>}</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>O código abaixo converte o dataframe <code>tabela_ncm</code> para uma tabela do Arrow, o que irá permitir a realização de um join com o dataset <code>exp_ds</code>.</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ncm_table <span class="op">=</span> pa.Table.from_pandas(tabela_ncm)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>ncm_table.schema</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="29">
+<pre><code>CO_NCM: string
+CO_UNID: int64
+CO_SH6: int64
+CO_PPE: double
+CO_PPI: double
+CO_FAT_AGREG: double
+CO_CUCI_ITEM: string
+CO_CGCE_N3: int64
+CO_SIIT: double
+CO_ISIC_CLASSE: int64
+CO_EXP_SUBSET: double
+NO_NCM_POR: string
+NO_NCM_ESP: string
+NO_NCM_ING: string
+-- schema metadata --
+pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 1913</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  con</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  .execute(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""SELECT exp_ds.CO_NCM, NO_NCM_POR, SUM(VL_FOB / 1E9) AS TOTAL_EXP_BI</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM exp_ds</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN ncm_table ON exp_ds.CO_NCM = ncm_table.CO_NCM</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE CO_ANO = 2022</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="st">    GROUP BY exp_ds.CO_NCM, NO_NCM_POR</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY TOTAL_EXP_BI DESC</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="st">    LIMIT 10"""</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  .fetch_df()</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="30">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>CO_NCM</th>
+      <th>NO_NCM_POR</th>
+      <th>TOTAL_EXP_BI</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>12019000</td>
+      <td>Soja, mesmo triturada, exceto para semeadura</td>
+      <td>46.553260</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>27090010</td>
+      <td>Óleos brutos de petróleo</td>
+      <td>42.553764</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>26011100</td>
+      <td>Minérios de ferro e seus concentrados, exceto ...</td>
+      <td>25.734248</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>10059010</td>
+      <td>Milho em grão, exceto para semeadura</td>
+      <td>12.072360</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>02023000</td>
+      <td>Carnes desossadas de bovino, congeladas</td>
+      <td>10.916696</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>27101922</td>
+      <td>Fuel oil</td>
+      <td>10.319564</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>17011400</td>
+      <td>Outros açúcares de cana</td>
+      <td>9.528719</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>09011110</td>
+      <td>Café não torrado, não descafeinado, em grão</td>
+      <td>8.511689</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>47032900</td>
+      <td>Pastas químicas de madeira, à soda ou ao sulfa...</td>
+      <td>7.677711</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>23040090</td>
+      <td>Bagaços e outros resíduos sólidos, da extração...</td>
+      <td>7.538183</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="considerações-finais" class="level2">
+<h2 class="anchored" data-anchor-id="considerações-finais">Considerações finais</h2>
+<p>Neste post, apresentamos, utilzando a base de dados de comércio exterior do Brasil, como é possível realizar consultas SQL em datasets do Arrow. A biblioteca <code>duckdb</code> permite realizar consultas SQL diretamente nos datasets do Arrow.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiada");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiada");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="paulofelipe/blog_comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">Copyright 2023, Paulo Oliveira</div>   
+  </div>
+</footer>
+
+
+
+</body></html>
