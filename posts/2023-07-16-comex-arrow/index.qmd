@@ -73,7 +73,6 @@ links[:5]
 Para cada link, o arquivo csv para cada fluxo e ano é baixado e salvo na pasta `secex_db/csvs`.
 
 ```{python}
-# download all csv files
 for link in links:
   file_name = link.split('/')[-1]
   file_path = os.path.join('secex_db/csvs', file_name)
@@ -155,11 +154,14 @@ imp_ds.schema
 
 A biblioteca `duckdb` permite realizar consultas SQL diretamente nos datasets do Arrow. O `duckdb` irá fazer uma integração com o Arrow sem a necessidade copiar os dados. Para mais detalhes, veja [este post](https://duckdb.org/2021/12/03/duck-arrow.html).
 
+
+### Exemplo 1: Obtendo os totais de exportação e importação por ano
+
+Cria a conexão com o duckdb.
+
 ```{python}
 con = duckdb.connect()
 ```
-
-### Exemplo 1: Obtendo os totais de exportação e importação por ano
 
 No código seguinte, é apresentado como é simples realizar consultas nos datasets `exp_ds` e `imp_ds`. As consultas abaixos calculam os totais exportados e importados em US\$ Bilhões até o ano de 2022.
 
@@ -200,7 +202,7 @@ total_exp_imp = (
 total_exp_imp
 ```
 
-```{python plot}
+```{python}
 # | fig-cap: Exportações e importações brasileiras por ano
 
 sns.set(rc={'figure.figsize': (8, 5)})

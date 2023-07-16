@@ -283,7 +283,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    link[<span class="st">'href'</span>] <span class="cf">for</span> link <span class="kw">in</span> links</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> re.search(<span class="vs">r'(EXP|IMP)_[0-9]</span><span class="sc">{4}</span><span class="vs">.csv'</span>, link[<span class="st">'href'</span>])]</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>links[:<span class="dv">5</span>]</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>['https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_1997.csv',
  'https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_1998.csv',
  'https://balanca.economia.gov.br/balanca/bd/comexstat-bd/ncm/EXP_1999.csv',
@@ -293,19 +293,18 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <p>Para cada link, o arquivo csv para cada fluxo e ano é baixado e salvo na pasta <code>secex_db/csvs</code>.</p>
 <div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># download all csv files</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> links:</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  file_name <span class="op">=</span> link.split(<span class="st">'/'</span>)[<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  file_path <span class="op">=</span> os.path.join(<span class="st">'secex_db/csvs'</span>, file_name)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">not</span> os.path.exists(file_path):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(file_path, <span class="st">'wb'</span>) <span class="im">as</span> f:</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      f.write(urlopen(link).read())</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> link <span class="kw">in</span> links:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  file_name <span class="op">=</span> link.split(<span class="st">'/'</span>)[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  file_path <span class="op">=</span> os.path.join(<span class="st">'secex_db/csvs'</span>, file_name)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="kw">not</span> os.path.exists(file_path):</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="bu">open</span>(file_path, <span class="st">'wb'</span>) <span class="im">as</span> f:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      f.write(urlopen(link).read())</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Para checagem, abaixo listamos o nome de cinco arquivos baixados.</p>
 <div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>csvs <span class="op">=</span> os.listdir(<span class="st">'secex_db/csvs'</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>csvs[:<span class="dv">5</span>]</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>['IMP_2002.csv',
  'EXP_2018.csv',
  'IMP_2012.csv',
@@ -366,7 +365,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>exp_ds <span class="op">=</span> ds.dataset(<span class="st">'secex_db/parquet/EXP'</span>,</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">format</span><span class="op">=</span><span class="st">'parquet'</span>, partitioning<span class="op">=</span><span class="st">'hive'</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>exp_ds.schema</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
+<div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>CO_MES: int16
 CO_NCM: string
 CO_UNID: string
@@ -386,7 +385,7 @@ pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 151
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>imp_ds <span class="op">=</span> ds.dataset(<span class="st">'secex_db/parquet/IMP'</span>,</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">format</span><span class="op">=</span><span class="st">'parquet'</span>, partitioning<span class="op">=</span><span class="st">'hive'</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>imp_ds.schema</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="23">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>CO_MES: int16
 CO_NCM: string
 CO_UNID: string
@@ -408,11 +407,12 @@ pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 174
 <section id="realizando-consultas" class="level2">
 <h2 class="anchored" data-anchor-id="realizando-consultas">Realizando consultas</h2>
 <p>A biblioteca <code>duckdb</code> permite realizar consultas SQL diretamente nos datasets do Arrow. O <code>duckdb</code> irá fazer uma integração com o Arrow sem a necessidade copiar os dados. Para mais detalhes, veja <a href="https://duckdb.org/2021/12/03/duck-arrow.html">este post</a>.</p>
+<section id="exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano" class="level3">
+<h3 class="anchored" data-anchor-id="exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano">Exemplo 1: Obtendo os totais de exportação e importação por ano</h3>
+<p>Cria a conexão com o duckdb.</p>
 <div class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>con <span class="op">=</span> duckdb.<span class="ex">connect</span>()</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano" class="level3">
-<h3 class="anchored" data-anchor-id="exemplo-1-obtendo-os-totais-de-exportação-e-importação-por-ano">Exemplo 1: Obtendo os totais de exportação e importação por ano</h3>
 <p>No código seguinte, é apresentado como é simples realizar consultas nos datasets <code>exp_ds</code> e <code>imp_ds</code>. As consultas abaixos calculam os totais exportados e importados em US$ Bilhões até o ano de 2022.</p>
 <div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>total_exp <span class="op">=</span> (</span>
@@ -445,7 +445,7 @@ pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 174
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>total_exp_imp</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="26">
+<div class="cell-output cell-output-display" data-execution_count="11">
 
 <div>
 
@@ -656,7 +656,7 @@ pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 174
 <div class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>ncm_table <span class="op">=</span> pa.Table.from_pandas(tabela_ncm)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>ncm_table.schema</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="29">
+<div class="cell-output cell-output-display" data-execution_count="14">
 <pre><code>CO_NCM: string
 CO_UNID: int64
 CO_SH6: int64
@@ -689,7 +689,7 @@ pandas: '{"index_columns": [{"kind": "range", "name": null, "start": 0, "' + 191
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  .fetch_df()</span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="30">
+<div class="cell-output cell-output-display" data-execution_count="15">
 
 <div>
 

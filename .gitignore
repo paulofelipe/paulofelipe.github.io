@@ -1,8 +1,7 @@
 /.quarto/
 /.luarc.json
 vscode/
-./index_files/
+/index_files/
 .vscode/
 profile.jpg
 2022-12-17-tstransformers/
-index_files/
