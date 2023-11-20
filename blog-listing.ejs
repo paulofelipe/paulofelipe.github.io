@@ -1,0 +1,30 @@
+```{=html}
+<ul class="list" style="list-style-type:none; padding-left: 0rem;">
+  <% for (const item of items) { %>
+    <li class="blog-list-item" <%=metadataAttrs(item) %>>
+      <div>
+        <p class="blog-time-date">
+          <i class="bi bi-calendar" role="img"></i>
+          <%= item.date %><br>
+            <%= item['reading-time'] %>
+        </p>
+
+        <a class="blog-title-link" href="<%- item.path %>">
+          <i class="fa-brands fa-linkedin"></i>
+          <%= item.title %>
+        </a>
+        <p class="blog-subtitle">
+          <%= item.subtitle %>
+        </p>
+        <div class="blog-category">
+          <% for (const category of item.categories) { %>
+            <div class="blog-category-item">
+              <%= category %>
+            </div>
+            <% } %>
+        </div>
+      </div>
+    </li>
+    <% } %>
+</ul>
+```
