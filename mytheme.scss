@@ -20,7 +20,6 @@ body {
 	background-color: $light-color;
 	display: flex;
 	flex-direction: column;
-	min-height: 100vh;
 	color: $dark-color;
 }
 
@@ -46,8 +45,7 @@ p {
 	background-color: $light-color !important;
 	color: $dark-color !important;
 	border: none !important;
-	margin-right: 25px;
-	line-height: 60px;
+	margin-right: 0px;
 }
 
 .nav-footer-right {
