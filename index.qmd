@@ -1,51 +1,49 @@
 ---
 # title: "Home" # if using a built-in template, this title appears under your photo
-pagetitle: Paulo Felipe - Home
+pagetitle: Paulo Oliveira - Home
 image: profile2.jpeg # great spot for your professional headshot :) 
 page-layout: custom
 toc: false
-# about: 
-#   template: trestles # see other templates at https://quarto.org/docs/websites/website-about.html#templates
-#   image-shape: rounded
-#   image-width: 15em
-#   links:
-#     - icon: linkedin # you'll need to the fontawesome extension to include icons: https://github.com/quarto-ext/fontawesome
-#       text: LinkedIn
-#       href: https://www.linkedin.com/in/paulo-oliveira-79     5748140/
-#     - icon: twitter
-#       text: Twitter
-#       href: https://twitter.com/paulofelipeao
-#     - icon: github
-#       text: GitHub
-#       href: https://github.com/paulofelipe
+execute: 
+  echo: false 
+  output: false
 ---
 
-::::: {.title-page}
+<!-- This div has a light gray background and take 100% vh but considering the navbar -->
+<div class="container flex">
+  <div class="item">
+  
+  <h1 class="title-home"></h1>
+  <p style="color: #303030;">Economista especializado em análise de dados. Interesse em econometria, machine learning e visualização de dados.</p>
+  <p></p>
+  <div class="links-flex">
+<a href="https://www.linkedin.com/in/paulo-oliveira-795748140/" class="btn btn-dark"><i class="bi bi-linkedin" aria-hidden="true"></i></a>
 
-::: {.title-container}
+<a href="https://github.com/paulofelipe" class="btn btn-dark"><i class="bi bi-github" aria-hidden="true"></i></a>
 
-<div>
-  <img src="profile3.jpeg" class="center-image">
-  <h1 style="text-align: center;font-weight:700;font-size:1.5rem;">Paulo Oliveira</h1>
-</div>
+<a href="https://twitter.com/paulofelipeao" class="btn btn-dark"><i class="bi bi-twitter" aria-hidden="true"></i></a>
 
-<div>
-# Olá, {.title-home}
-
-Eu sou um economista com foco em análise de dados e métodos quantitativos. Tenho experiência econometria, machine learning, equilíbrio geral computável e visualização de dados.
-
-
-<div class="links-flex">
-[{{< fa brands linkedin >}}](https://www.linkedin.com/in/paulo-oliveira-795748140/){.btn .btn-dark}
-
-[{{< fa brands github >}}](https://github.com/paulofelipe){.btn .btn-dark}
-
-[{{< fa brands twitter >}}]( https://twitter.com/paulofelipeao){.btn .btn-dark}
-</div>
 
 </div>
 
+  </div>
+  <div class="item"><img src="profile3.jpeg" class="center-image"></div>
+</div>
 
-:::
 
-:::::
+```{ojs}
+d3 = require("d3@7")
+
+data = ["P", "a", "u", "l", "o", " ", "O", "l", "i", "v", "e", "i", "r", "a"]
+
+{
+  for(var i=0; i<data.length; i++) {
+      d3
+        .select(".title-home")
+        .append("text")
+        .text(data[i])
+        .attr("font-size", "1.7rem")
+      await new Promise(r => setTimeout(r, 20));
+  }
+}
+```

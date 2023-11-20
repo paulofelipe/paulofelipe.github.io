@@ -1,6 +1,6 @@
 ---
 title: Dados de comércio exterior do Brasil com Arrow e Duckdb
-date: today
+date: 2023-07-16
 subtitle: "Baixe a base completa e faça consultas localmente"
 lang: pt
 draft: false
@@ -39,6 +39,7 @@ import matplotlib.pyplot as plt
 
 # avoid ssl verification error
 import ssl
+
 ssl._create_default_https_context = ssl._create_unverified_context
 ```
 
@@ -48,9 +49,9 @@ O código abaixo cria as pastas que irão salvar os arquivos originais e a base 
 
 ```{python}
 if not os.path.exists("secex_db"):
-  os.mkdir("secex_db")
-  os.mkdir("secex_db/csvs")
-  os.mkdir("secex_db/parquet")
+    os.mkdir("secex_db")
+    os.mkdir("secex_db/csvs")
+    os.mkdir("secex_db/parquet")
 ```
 
 ## Download dos dados
@@ -60,13 +61,13 @@ O próximo chunk de código lê a página que contém os links para os arquivos 
 Veja [este link](https://www.gov.br/produtividade-e-comercio-exterior/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta) para conhecer todos os dados disponibilizados pela Secretaria de Comércio Exterior.
 
 ```{python}
-url = 'https://www.gov.br/produtividade-e-comercio-exterior/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta'
+url = "https://www.gov.br/produtividade-e-comercio-exterior/pt-br/assuntos/comercio-exterior/estatisticas/base-de-dados-bruta"
 html = urlopen(url)
-soup = BeautifulSoup(html, 'html.parser')
-links = soup.find_all('a', href=True)
+soup = BeautifulSoup(html, "html.parser")
+links = soup.find_all("a", href=True)
 links = [
-    link['href'] for link in links
-    if re.search(r'(EXP|IMP)_[0-9]{4}.csv', link['href'])]
+    link["href"] for link in links if re.search(r"(EXP|IMP)_[0-9]{4}.csv", link["href"])
+]
 links[:5]
 ```
 
@@ -74,17 +75,17 @@ Para cada link, o arquivo csv para cada fluxo e ano é baixado e salvo na pasta 
 
 ```{python}
 for link in links:
-  file_name = link.split('/')[-1]
-  file_path = os.path.join('secex_db/csvs', file_name)
-  if not os.path.exists(file_path):
-    with open(file_path, 'wb') as f:
-      f.write(urlopen(link).read())
+    file_name = link.split("/")[-1]
+    file_path = os.path.join("secex_db/csvs", file_name)
+    if not os.path.exists(file_path):
+        with open(file_path, "wb") as f:
+            f.write(urlopen(link).read())
 ```
 
 Para checagem, abaixo listamos o nome de cinco arquivos baixados.
 
 ```{python}
-csvs = os.listdir('secex_db/csvs')
+csvs = os.listdir("secex_db/csvs")
 csvs[:5]
 ```
 
@@ -94,44 +95,46 @@ Com os dados já baixados, o próximo passo será ler os arquivos csv e salvar n
 
 ```{python}
 # Limpa as pastas caso já existam arquivos criados
-if os.path.exists('secex_db/parquet/EXP/'):
-  for folder in os.listdir('secex_db/parquet/EXP/'):
-    shutil.rmtree(f'secex_db/parquet/EXP/{folder}')
+if os.path.exists("secex_db/parquet/EXP/"):
+    for folder in os.listdir("secex_db/parquet/EXP/"):
+        shutil.rmtree(f"secex_db/parquet/EXP/{folder}")
 
-if os.path.exists('secex_db/parquet/IMP/'):
-  for folder in os.listdir('secex_db/parquet/IMP/'):
-    shutil.rmtree(f'secex_db/parquet/IMP/{folder}')
+if os.path.exists("secex_db/parquet/IMP/"):
+    for folder in os.listdir("secex_db/parquet/IMP/"):
+        shutil.rmtree(f"secex_db/parquet/IMP/{folder}")
 
 for csv in csvs:
-  df = pd.read_csv(
-      filepath_or_buffer=f'secex_db/csvs/{csv}',
-      sep=';',
-      encoding='latin-1',
-      low_memory=False,
-      dtype={
-          'CO_ANO': 'int16',
-          'CO_MES': 'int16',
-          'CO_NCM': 'string',
-          'CO_UNID': 'string',
-          'CO_PAIS': 'string',
-          'SG_UF_NCM': 'string',
-          'CO_VIA': 'string',
-          'CO_URF': 'string',
-          'QT_ESTAT': 'float32',
-          'KG_LIQUIDO': 'float32',
-          'VL_FOB': 'float32'
-      }
-  )
-  if 'EXP' in csv:
-    pq.write_to_dataset(
-      pa.Table.from_pandas(df),
-      root_path='secex_db/parquet/EXP/',
-      partition_cols=['CO_ANO'])
-  else:
-    pq.write_to_dataset(
-      pa.Table.from_pandas(df),
-      root_path='secex_db/parquet/IMP/',
-      partition_cols=['CO_ANO'])
+    df = pd.read_csv(
+        filepath_or_buffer=f"secex_db/csvs/{csv}",
+        sep=";",
+        encoding="latin-1",
+        low_memory=False,
+        dtype={
+            "CO_ANO": "int16",
+            "CO_MES": "int16",
+            "CO_NCM": "string",
+            "CO_UNID": "string",
+            "CO_PAIS": "string",
+            "SG_UF_NCM": "string",
+            "CO_VIA": "string",
+            "CO_URF": "string",
+            "QT_ESTAT": "float32",
+            "KG_LIQUIDO": "float32",
+            "VL_FOB": "float32",
+        },
+    )
+    if "EXP" in csv:
+        pq.write_to_dataset(
+            pa.Table.from_pandas(df),
+            root_path="secex_db/parquet/EXP/",
+            partition_cols=["CO_ANO"],
+        )
+    else:
+        pq.write_to_dataset(
+            pa.Table.from_pandas(df),
+            root_path="secex_db/parquet/IMP/",
+            partition_cols=["CO_ANO"],
+        )
 ```
 
 ## Arrow datasets
@@ -139,14 +142,12 @@ for csv in csvs:
 Com os arquivos salvos no formato parquet, podemos criar os datasets do `pyarrow` para cada fluxo (exportação e importação). Um ponto importante do dataset é que ele permite trabalhar com dados que podem ser maiores do que a memória disponível no seu computador. Ao abrir o dataset, o `pyarrow` apenas irá mapear a estrutura dos dados, sem carregá-los na memória.
 
 ```{python}
-exp_ds = ds.dataset('secex_db/parquet/EXP',
-                    format='parquet', partitioning='hive')
+exp_ds = ds.dataset("secex_db/parquet/EXP", format="parquet", partitioning="hive")
 exp_ds.schema
 ```
 
 ```{python}
-imp_ds = ds.dataset('secex_db/parquet/IMP',
-                    format='parquet', partitioning='hive')
+imp_ds = ds.dataset("secex_db/parquet/IMP", format="parquet", partitioning="hive")
 imp_ds.schema
 ```
 
@@ -166,25 +167,17 @@ con = duckdb.connect()
 No código seguinte, é apresentado como é simples realizar consultas nos datasets `exp_ds` e `imp_ds`. As consultas abaixos calculam os totais exportados e importados em US\$ Bilhões até o ano de 2022.
 
 ```{python}
-total_exp = (
-  con
-  .execute(
+total_exp = con.execute(
     """SELECT CO_ANO, SUM(VL_FOB / 1E9) AS TOTAL_EXP_BI FROM exp_ds
      WHERE CO_ANO <= 2022
      GROUP BY CO_ANO"""
-  )
-  .fetch_df()
-)
+).fetch_df()
 
-total_imp = (
-  con
-  .execute(
+total_imp = con.execute(
     """SELECT CO_ANO, SUM(VL_FOB / 1E9) AS TOTAL_IMP_BI FROM imp_ds
     WHERE CO_ANO <= 2022
     GROUP BY CO_ANO"""
-  )
-  .fetch_df()
-)
+).fetch_df()
 
 ```
 
@@ -193,10 +186,9 @@ Os dados são combinados em um dataframe único e printados na tabela abaixo.
 ```{python}
 # | tbl-cap: Exportações e importações brasileiras por ano - US$ Bilhões
 total_exp_imp = (
-  total_exp
-  .merge(total_imp, on='CO_ANO')
-  .sort_values(by='CO_ANO')
-  .reset_index(drop=True)
+    total_exp.merge(total_imp, on="CO_ANO")
+    .sort_values(by="CO_ANO")
+    .reset_index(drop=True)
 )
 
 total_exp_imp
@@ -205,15 +197,13 @@ total_exp_imp
 ```{python}
 # | fig-cap: Exportações e importações brasileiras por ano
 
-sns.set(rc={'figure.figsize': (8, 5)})
+sns.set(rc={"figure.figsize": (8, 5)})
 sns.set_theme(style="whitegrid")
-sns.lineplot(data=total_exp_imp, x="CO_ANO",
-             y="TOTAL_EXP_BI", label="Exportação")
-sns.lineplot(data=total_exp_imp, x="CO_ANO",
-             y="TOTAL_IMP_BI", label="Importação")
-plt.xlabel('Ano')
-plt.ylabel('US$ Bilhões')
-plt.title('Exportação e Importação Brasileira')
+sns.lineplot(data=total_exp_imp, x="CO_ANO", y="TOTAL_EXP_BI", label="Exportação")
+sns.lineplot(data=total_exp_imp, x="CO_ANO", y="TOTAL_IMP_BI", label="Importação")
+plt.xlabel("Ano")
+plt.ylabel("US$ Bilhões")
+plt.title("Exportação e Importação Brasileira")
 plt.show()
 ```
 
@@ -223,10 +213,10 @@ Neste exemplo, iremos obter os 10 principais produtos exportados pelo Brasil em 
 
 ```{python}
 tabela_ncm = pd.read_csv(
-  'https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv',
-  sep=';',
-  encoding='latin-1',
-  dtype={'CO_NCM': 'string'}
+    "https://balanca.economia.gov.br/balanca/bd/tabelas/NCM.csv",
+    sep=";",
+    encoding="latin-1",
+    dtype={"CO_NCM": "string"},
 )
 ```
 
@@ -239,17 +229,15 @@ ncm_table.schema
 
 ```{python}
 (
-  con
-  .execute(
-    """SELECT exp_ds.CO_NCM, NO_NCM_POR, SUM(VL_FOB / 1E9) AS TOTAL_EXP_BI
+    con.execute(
+        """SELECT exp_ds.CO_NCM, NO_NCM_POR, SUM(VL_FOB / 1E9) AS TOTAL_EXP_BI
     FROM exp_ds
     JOIN ncm_table ON exp_ds.CO_NCM = ncm_table.CO_NCM
     WHERE CO_ANO = 2022
     GROUP BY exp_ds.CO_NCM, NO_NCM_POR
     ORDER BY TOTAL_EXP_BI DESC
     LIMIT 10"""
-  )
-  .fetch_df()
+    ).fetch_df()
 )
 ```
 

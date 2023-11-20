@@ -151,7 +151,7 @@ pred2 <- predict(fit2, test, type = "response")
 Neste segundo bloco, são computadas as probabilidades de vitória do time 1, empate e vitória do time 2. Para isso, são utilizadas as predições anteriores como o parâmetro ($\lambda$) da distribuição de Poisson e são calculadas as probabilidades de cada time marcar 0 a 10 gols. Multiplicando as probabilidades são obtidas as probabilidades de cada placar possível. Por último, a probabilidade do time 1 ganhar é calculada como a soma das probabilidades dos placares nos quais o time 1 marca mais gols que o time2. As probabilidades de empate e vitória do time 2 são calculadas de forma similar.
 
 ```{r}
-preds <- map_df(seq_len(nrow(test)), ~{
+preds <- map_df(seq_len(nrow(test)), ~ {
   lambda1 <- pred1[.x]
   lambda2 <- pred2[.x]
 
@@ -204,7 +204,7 @@ score_acc <- accuracy(
 score_ll <- mn_log_loss(
   data = test,
   truth = target,
-  estimate = contains(".pred")
+  contains(".pred")
 )
 
 bind_rows(score_acc, score_ll)
@@ -215,16 +215,16 @@ E qual é o desempenho do modelo para as partidas da Copa do Mundo de 2022?
 ```{r}
 score_acc_wc2022 <- accuracy(
   data = test |>
-  filter(date >= as.Date("2022-01-01"), tournament == "FIFA World Cup"),
+    filter(date >= as.Date("2022-01-01"), tournament == "FIFA World Cup"),
   truth = target,
   estimate = pred_class
 )
 
 score_ll_wc2022 <- mn_log_loss(
   data = test |>
-  filter(date >= as.Date("2022-01-01"), tournament == "FIFA World Cup"),
+    filter(date >= as.Date("2022-01-01"), tournament == "FIFA World Cup"),
   truth = target,
-  estimate = contains(".pred")
+  contains(".pred")
 )
 
 bind_rows(score_acc_wc2022, score_ll_wc2022)

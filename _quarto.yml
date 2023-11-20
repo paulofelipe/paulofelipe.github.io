@@ -6,7 +6,7 @@ project:
     browser: true
 
 website:
-  title: "Paulo Oliveira"
+  title: "👨🏻‍💻"
   navbar:
     background: "#fff"
     foreground: "#303030"
@@ -23,12 +23,12 @@ website:
       - icon: github
         href: https://www.github.com/paulofelipe
   page-footer: 
-    left: "Copyright 2023, Paulo Oliveira" 
+    right: "Copyright 2023, Paulo Oliveira" 
 format:
   html:
     theme:
       - mytheme.scss
-    mainfont: Roboto
+    mainfont: Poppins
     toc: true
 
 

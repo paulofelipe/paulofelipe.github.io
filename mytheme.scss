@@ -1,7 +1,7 @@
 /* css styles */
 
 // @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,200;0,400;0,600;0,700;1,200;1,400;1,600;1,700&display=swap');
-// @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,600;1,200;1,400;1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,200;0,400;0,600;1,200;1,400;1,600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 /*-- scss:defaults --*/
@@ -18,6 +18,10 @@ $light-blue: rgb(91, 132, 209);
 
 body {
 	background-color: $light-color;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	color: $dark-color;
 }
 
 p {
@@ -36,12 +40,18 @@ p {
 // 	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
 // }
 
-footer {
-	display: grid;
-	gap: 0;
-	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
-	// border-top: 1px solid #dee2e6;
-	background-color: $dark-color;
+
+
+.nav-footer {
+	background-color: $light-color !important;
+	color: $dark-color !important;
+	border: none !important;
+	margin-right: 25px;
+	line-height: 60px;
+}
+
+.nav-footer-right {
+	height: 0px;
 }
 
 
@@ -74,12 +84,12 @@ div.quarto-about-trestles .about-entity .about-link {
 // 	color: $light-color;
 // }
 
-// .navbar-dark .navbar-nav .show>.nav-link,
-// .navbar-dark .navbar-nav .active>.nav-link,
-// .navbar-dark .navbar-nav .nav-link.active {
-// 	color: $light-color;
-// 	font-weight: bold;
-// }
+.navbar-dark .navbar-nav .show>.nav-link,
+.navbar-dark .navbar-nav .active>.nav-link,
+.navbar-dark .navbar-nav .nav-link.active {
+	color: $dark-color;
+	font-weight: bold;
+}
 
 // .navbar-dark .navbar-nav .nav-link:hover,
 // .navbar-dark .navbar-nav .nav-link:focus {
@@ -167,7 +177,7 @@ a:hover {
 	flex-direction: row;
 	column-gap: .8em;
 	row-gap: 15px;
-	justify-content: center;
+	justify-content: left;
 	flex-wrap: wrap;
 }
 
@@ -181,7 +191,7 @@ a:hover {
 	grid-template-columns: [screen-start] 1.5em [screen-start-inset] 5fr [page-start page-start-inset] 35px [body-start-outset] 35px [body-start] 1.5em [body-content-start] minmax(500px, calc(850px - 3em)) [body-content-end] 1.5em [body-end] 35px [body-end-outset] 35px [page-end-inset page-end] 5fr [screen-end-inset] 1.5em [screen-end];
 	background-color: $light-color;
 	color: $main-color;
-	height: calc(100vh - 145px);
+	height: calc(100vh - 120px);
 }
 
 .title-container {
@@ -199,10 +209,11 @@ a:hover {
 
 h1.title-home,
 .title-home.h1 {
-	margin-top: 0;
-	font-size: 2rem;
+	margin-top: 0px;
+	font-size: 3rem;
 	font-weight: 700;
-	color: $dark-color2;
+	color: $dark-color;
+	margin-bottom: 0px;
 }
 
 .fullcontent {
@@ -214,9 +225,8 @@ h1.title-home,
 	display: block;
 	margin-left: auto;
 	margin-right: auto;
-	height: 200px;
+	height: 250px;
 	border-radius: 50%;
-	border: 3px solid $dark-color;
 }
 
 .btn-dark {
@@ -239,8 +249,6 @@ h1.title-home,
 		margin-left: 25px;
 		grid-column: page-start/page-end;
 		border-top: 0px !important;
-		background-color: $dark-color;
-		color: $light-color;
 	}
 }
 
@@ -255,13 +263,105 @@ h1.title-home,
 
 	footer {
 		display: block;
-		background-color: $dark-color;
 	}
 
 	.nav-footer {
 		margin-left: 25px;
 		border-top: 0px !important;
-		background-color: $dark-color;
-		color: $light-color;
 	}
+}
+
+
+h2,
+.h2 {
+	border-bottom: none !important;
+}
+
+.container {
+	max-width: 768px;
+	margin: 0 auto;
+	border: 0px solid #ccc;
+	display: flex; // This will make the container a flex container
+	align-items: center; // This will center the content vertically
+	justify-content: center; // This will center the content horizontally
+}
+
+.flex {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: calc(100vh - 120px);
+	flex-wrap: wrap;
+	column-gap: 1em;
+	row-gap: 1em;
+}
+
+.item {
+	flex: 1;
+}
+
+// css for blog listing
+.blog-title-link {
+	color: $dark-color2;
+	font-size: 1.5rem;
+	font-weight: 700;
+}
+
+.blog-title-link,
+a {
+	//remove underline
+	text-decoration: none;
+}
+
+.blog-subtitle {
+	color: $dark-color2;
+	font-size: 1rem;
+	font-weight: 300;
+	margin-top: -5px;
+}
+
+.blog-time-date {
+	color: #878787;
+	font-size: .7rem;
+	font-weight: bold;
+	margin-bottom: 0px;
+	padding-bottom: 0px;
+}
+
+.blog-list-item {
+	display: flex;
+	margin-bottom: 0px;
+}
+
+.blog-category {
+	display: flex;
+	flex-direction: row;
+	color: #878787;
+	margin-bottom: 0px;
+	color: #878787;
+	font-size: .7rem;
+	font-weight: bold;
+	margin-bottom: 40px;
+	margin-top: -10px;
+}
+
+.blog-category-item {
+	padding: .25em .75em;
+	font-size: .65em;
+	text-transform: uppercase;
+	border: solid 1px;
+	border-radius: .25rem;
+	opacity: .6;
+	margin-right: 5px;
+}
+
+#quarto-margin-sidebar .quarto-listing-category {
+	font-size: 0.875rem;
+	font-weight: 300;
+}
+
+#quarto-margin-sidebar .quarto-listing-category-title {
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 0.875rem;
 }
