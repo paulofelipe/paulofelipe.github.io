@@ -271,5 +271,12 @@
     "title": "Predições de Resultados de Futebol",
     "section": "",
     "text": "Durante a Copa do Mundo de futebol de 2022, o interesse por predições de resultados de futebol aumentou consideravelmente. Neste sentido, este post irá demonstrar uma abordagem simples que pode gerar resultados razoáveis. O modelo utilizado neste post é baseado no trabalho The Methodology of Red, a Football Forecasting Model from theUniversity of Reading de J. James Reade.\nBasicamente, o autor utiliza um modelo de Poisson para prever as probabilidades de gols marcados por cada time. A partir dessas probabilidades, é possível estimar também a chance de vitória, empate ou derrota de cada time. Como variáveis, iremos utilizar o Elo Rating de cada time e uma variável que indica se o jogo ocorreu em campo neutro ou não. O modelo a ser estimado para cada time é: \\[ Y_{ijt}^n = \\exp\\left(\\alpha^n + \\beta_1^n R_{it} + \\beta_2^n R_{jt} + \\beta_3^n N_{ijt} \\right) \\varepsilon_{ijt}^n,~~~~ n \\in \\{time1, time2\\}, \\] em que \\(Y_{ijt}^n\\) representa o número de gols marcados pelo time \\(n\\) (time 1 ou time2) em uma partida entre o time \\(i\\) (time 1) e o time \\(j\\) (time 2) na data \\(t\\). As variáveis \\(R_{it}\\) e \\(R_{jt}\\) representam, respectivamente, os ratings dos times \\(i\\) e \\(j\\) antes da partida de data \\(t\\). Por último, a variável \\(N_{ijt}\\) é um variável dummy que indica se a partida foi realizada em um campo neutro. Reforçando, iremos estimar dois modelos: um para o time 1 e outro para o time 2."
+  },
+  {
+    "objectID": "research.html",
+    "href": "research.html",
+    "title": "\nPublicações\n",
+    "section": "",
+    "text": "Publicações\n\n\nDesigualdade de gênero na duração do desemprego e seus efeitos sobre os salários aceitos no Brasil (com José Raimundo Carvalho). Revista Econômica do Nordeste, 2009.\nRegional Labor Market Differences in Brazil and Search Frictions: Some Structural Estimates (com José Raimundo Carvalho). Revista Brasileira de Economia, 2016.\nTrade policy analysis in Brazil: Assessing welfare impacts with revised Armington elasticities (com Pedro Antero Cordeiro). Economic Modelling, 2023. [pdf]"
   }
 ]

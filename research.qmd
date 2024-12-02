@@ -1,0 +1,11 @@
+---
+pagetitle: Pesquisa
+---
+
+<h1>Publicações</h1>
+
+* [Desigualdade de gênero na duração do desemprego e seus efeitos sobre os salários aceitos no Brasil](https://arkolakis.com/research/) (com José Raimundo Carvalho). Revista Econômica do Nordeste, 2009.
+
+* [Regional Labor Market Differences in Brazil and Search Frictions: Some Structural Estimates](https://periodicos.fgv.br/rbe/article/view/9394) (com José Raimundo Carvalho). Revista Brasileira de Economia, 2016.
+
+* [Trade policy analysis in Brazil: Assessing welfare impacts with revised Armington elasticities](https://www.sciencedirect.com/science/article/abs/pii/S0264999323003504) (com Pedro Antero Cordeiro). Economic Modelling, 2023. [[pdf]](publications/armington_brazil.pdf)

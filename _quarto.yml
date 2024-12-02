@@ -15,6 +15,8 @@ website:
         text: Home
       - href: blog.qmd
         text: Blog
+      - href: research.qmd
+        text: Pesquisa
       - href: about.qmd
         text: Sobre
     right: 
