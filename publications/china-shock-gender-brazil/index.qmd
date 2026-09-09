@@ -1,0 +1,31 @@
+---
+title: "Trade Shocks and Gender: The China Shock's Labor Market Impacts in Brazil"
+author:
+  - name: "Paulo Felipe Oliveira"
+date: "2026-05"
+format:
+  html:
+    toc: false
+    page-layout: article
+---
+
+## Working Paper
+
+**Paulo Felipe Oliveira**
+
+### Abstract
+
+The China Shock is one of the most significant trade shocks in recent history. This analysis investigates its impact on the Brazilian labor market, focusing on gender differences, using a dynamic spatial general equilibrium model. The results indicate that the China Shock led to a reduction of approximately 0.5 percentage points in total employment participation for both men and women. This translates to a loss of about 400,000 manufacturing jobs compared to a scenario without the China Shock. Given the initial differences in sectoral labor allocation by
+gender, the sectoral contributions and spatial effects differ for men and women. The welfare effects for workers are positive in aggregate terms, but differ by gender: 0.6% for men and 0.4% for women.
+
+### Keywords
+
+Trade shocks, general equilibrium, gender differences, labor market, Brazi
+
+### JEL Classification
+
+F16; F17; J16; D58.
+
+### Paper
+
+[**Download PDF**](../china_shock_gender_brazil.pdf)
