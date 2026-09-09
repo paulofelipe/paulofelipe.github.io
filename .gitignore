@@ -5,3 +5,5 @@ vscode/
 .vscode/
 profile.jpg
 2022-12-17-tstransformers/
+
+**/*.quarto_ipynb
