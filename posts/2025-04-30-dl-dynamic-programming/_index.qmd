@@ -1,0 +1,72 @@
+---
+title: "Deep Learning for Solving Dynamic Programming Economic Models"
+date: 2025-04-30
+subtitle: "A Simple Example"
+draft: true
+fig-cap-location: top
+image: exp-imp.png
+categories:
+  - python
+  - Deep Learning
+---
+
+```{python}
+import numpy as np
+import torch
+
+
+```
+
+```{python}
+gamma = 2.0
+pi_l = 0.5
+pi_h = 0.5
+beta = 0.95
+y_L = 0.9
+y_H = 1.1
+Xmax = 2.0
+T = 100
+R = 1 / 0.95
+```
+
+
+```{python}
+def u(c, gamma=2.0):
+    return (c**(1-gamma) - 1) / (1-gamma)
+
+def c_fn(X):
+  return 0.5 * X
+
+# sample 2.5 and 7.5 T times with probabilities 0.5 and 0.5
+y = np.random.choice([y_L, y_H], size=T, p=[pi_l, pi_h])
+
+X = Xmax
+U = 0
+for t in range(T):
+  c = c_fn(X)
+  u_c = u(c, gamma=gamma)
+  X = R * (X - c) + y[t]
+  U += beta*(t-1) * u_c
+
+print(f"U: {U:.2f}")
+```
+
+
+```{python}
+import torch.nn as nn
+
+# Define the neural network
+model = nn.Sequential(nn.Linear(1, 1), nn.Sigmoid())  # Input size 1, Output size 1
+
+# Example usage:
+# Create a dummy input tensor
+batch_size = 10
+input_tensor = 2.9 * torch.rand(batch_size, 1) + 0.1
+
+# Pass the input through the model
+output_tensor = model(input_tensor)
+
+# Print the shapes to verify
+print(f"Input shape: {input_tensor.shape}")
+print(f"Output shape: {output_tensor.shape}")
+```
